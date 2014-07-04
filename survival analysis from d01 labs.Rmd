@@ -1,0 +1,62 @@
+## Survival Analysis from d01 Procalcitonin Project
+
+========================================================
+
+```{r loading up the packages, cache=TRUE}
+anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
+View(anonMASTER)
+library(ggplot2)
+library(caret)
+library(dplyr)
+
+```
+
+
+
+```{r survival lactate, cache=TRUE}
+data <- anonMASTER
+data <- tbl_df(data)
+qplot(LACTATE.d01,Survival,data=data, colour=Survival)
+
+
+```
+
+```{r, cache=TRUE}
+qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"), method=lm)
+
+```
+
+```{r, cache=TRUE}
+qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
+
+```{r , cache=TRUE}
+qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
+```
+
+```{r, cache=TRUE}
+qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=PROCALCITONIN.d01, geom=c("point","smooth"), method=lm)
+```
+
+```{r, cache=TRUE}
+qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("point","smooth"), method=lm)
+
+```
+
+```{r, cache=TRUE}
+qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
+```
+
+```{r, cache=TRUE}
+qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
+
+```
+
+```{r, cache=TRUE}
+
+qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
+
+```
+
+
+
+```
