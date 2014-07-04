@@ -76,7 +76,8 @@ summary(g)
 ```{r chf, cache=TRUE}
 chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
-glm.chf.aki <- glm(aki~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb,data=chfnoesrd, family=binomial)
+
+
 glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt)
 
@@ -113,4 +114,14 @@ summary(glm.chf.vent.lact)
 
 ```
 
+```{r, cache=TRUE}
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
+summary(leaps)
+plot(leaps)
+
 ```
+
+
