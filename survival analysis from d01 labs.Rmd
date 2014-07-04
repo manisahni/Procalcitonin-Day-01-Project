@@ -48,7 +48,6 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smo
 
 ```{r, cache=TRUE}
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
-
 ```
 
 ```{r, cache=TRUE}
@@ -57,6 +56,28 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"),
 
 ```
 
+```{r, rrt in esld, cache=TRUE}
 
+esld <- subset(data, ESLD=="ESLD")
+
+esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
+g <- glm(rrtbin~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01, data=esldnonesrd, family=binomial(link=logit))
+
+summary(g)
+
+```
+
+```{r chf, cache=TRUE}
+chf <- subset(data, CHF=="CHF")
+chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
+glm.chf.aki <- glm(aki~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb,data=chfnoesrd, family=binomial)
+glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+summary(glm.chf.rrt)
+qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
+
+glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.aki)
+
+```
 
 ```
