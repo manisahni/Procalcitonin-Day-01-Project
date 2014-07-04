@@ -2,9 +2,9 @@
 
 ========================================================
 
-```{r loading up the packages, cache=TRUE}
+```{r loading up the packages}
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
-View(anonMASTER)
+
 library(ggplot2)
 library(caret)
 library(dplyr)
@@ -13,7 +13,7 @@ library(dplyr)
 
 ## Exploratory Graphs
 
-```{r survival lactate, cache=TRUE}
+```{r survivgraphs}
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
@@ -22,23 +22,24 @@ data <- anonMASTER
 
 ```
 
-```{r, cache=TRUE}
+```{r, graph 2 ,cache=TRUE}
 qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"), method=lm)
 
 ```
 
-```{r, cache=TRUE}
+```{r, graph3, cache=TRUE}
 qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
 ```{r , cache=TRUE}
 qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r, graph4, cache=TRUE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=PROCALCITONIN.d01, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r,  cache=TRUE}
+
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
 ```
@@ -47,7 +48,7 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("poi
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r,  cache=TRUE}
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
@@ -62,9 +63,10 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"),
 ```
 ## ** ESLD AKI  models **
 
-Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
+Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code
 
-```{r, rrt in esld, cache=TRUE}
+```{r, cache=TRUE}
+
 ## define the esld subset and exclude the chronic dialysis patients##
 esld <- subset(data, ESLD=="ESLD")
 
