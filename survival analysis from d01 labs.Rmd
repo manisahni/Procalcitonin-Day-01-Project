@@ -11,13 +11,14 @@ library(dplyr)
 
 ```
 
-
+## Exploratory Graphs
 
 ```{r survival lactate, cache=TRUE}
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
-
+anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
+data <- anonMASTER
 
 ```
 
@@ -51,8 +52,6 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), 
 
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 
-qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
-
 
 ```
 
@@ -61,19 +60,29 @@ qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 
 ```
+## ** ESLD AKI  models **
+
+Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
 
 ```{r, rrt in esld, cache=TRUE}
-
+## define the esld subset and exclude the chronic dialysis patients##
 esld <- subset(data, ESLD=="ESLD")
 
 esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
+## glm for predicing the risk of starting rrt in the encounter in this subset##
 g <- glm(rrtbin~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01, data=esldnonesrd, family=binomial(link=logit))
 
 summary(g)
 
+
+qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
 ```
 
+## CHF and RRT models
+
+
 ```{r chf, cache=TRUE}
+
 chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
 
@@ -90,6 +99,13 @@ summary(glm.chf.rrt.lact2)
 
 qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
+```
+
+## CHF AKI RIFLE Stage I models
+
+```{r, cache=TRUE}
+
+
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
 summary(glm.chf.aki)
 
@@ -101,16 +117,92 @@ summary(glm.chf.aki.lact)
 
 ```
 
-```{r,cache=TRUE}
-glm.chf.vent <- glm(VentCPT~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+ESLD+Transplant.y,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.vent)
+## Stage 1 RIFLE AKI in CHF All Subset Regression
+
+We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)
+
+```{r, cache=TRUE}
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
+
+plot(leaps)
 
 ```
 
-```{r,cache=TRUE}
+## Stage 1 RIFLE AKI in CHF Odds ratio table
 
-glm.chf.vent.lact <- glm(VentCPT~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.vent.lact)
+We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)
+
+```{r, chf aki odds ratio table, cache=TRUE}
+aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
+WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn,
+family = binomial(link = logit), data = chfnoesrd)
+int <- exp(confint(aki))
+odds <- exp(coef(aki))
+akioddstable <- cbind(odds,int)
+akioddstable
+
+```
+
+
+## CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2)
+
+Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.
+
+
+```{r CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2), cache=TRUE, warning=FALSE}
+
+anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
+data <- anonMASTER
+chf <- subset(data, CHF=="CHF")
+chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
+glm.chf.aki.rifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.aki.rifle2)
+glmrifle2 <- glm.chf.aki.rifle2 
+
+int <- exp(confint(glm.chf.aki.rifle2))
+odds <- exp(coef(glm.chf.aki.rifle2))
+akioddstable <- cbind(odds,int)
+akioddstable
+
+```
+
+```{r, chf aki RIFLE 2, cache=TRUE}
+
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
+
+plot(leaps)
+
+```
+
+
+
+
+```{r rifle 3 in aki, cache=TRUE}
+
+anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
+anonmaster4 <- mutate(anonMASTER3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE"))
+
+data <- anonmaster4
+
+chf <- subset(data, CHF=="CHF")
+
+chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
+## glm for rifle3
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+
+summary(chfrifle3)
+
+##odds ratio table
+int <- exp(confint(chfrifle3))
+odds <- exp(coef(chfrifle3))
+akioddstable <- cbind(odds,int)
+akioddstable
 
 ```
 
@@ -118,10 +210,25 @@ summary(glm.chf.vent.lact)
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
-leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
-summary(leaps)
+leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit), nbest=10)
+
 plot(leaps)
+
 
 ```
 
+
+## Ventilator data 
+GLM regression for the Vent CPT code, which includes lactate on d01
+
+```{r,cache=TRUE}
+
+
+glm.chf.vent.lact <- glm(VentCPT~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.vent.lact)
+
+```
+
+
+```
 

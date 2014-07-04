@@ -31,7 +31,7 @@ library(dplyr)
 ##     intersect, setdiff, setequal, union
 ```
 
-
+## Exploratory Graphs
 
 
 ```r
@@ -45,6 +45,11 @@ qplot(LACTATE.d01,Survival,data=data, colour=Survival)
 ```
 
 ![plot of chunk survival lactate](figure/survival lactate.png) 
+
+```r
+anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
+data <- anonMASTER
+```
 
 
 ```r
@@ -124,14 +129,6 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smoo
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-72.png) 
 
-```r
-qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
-```
-
-```
-## Error: object 'esldnonesrd' not found
-```
-
 
 ```r
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
@@ -144,12 +141,17 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"),
 ```
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+## ** ESLD AKI  models **
+
+Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
 
 
 ```r
+## define the esld subset and exclude the chronic dialysis patients##
 esld <- subset(data, ESLD=="ESLD")
 
 esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
+## glm for predicing the risk of starting rrt in the encounter in this subset##
 g <- glm(rrtbin~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01, data=esldnonesrd, family=binomial(link=logit))
 
 summary(g)
@@ -186,6 +188,15 @@ summary(g)
 ## 
 ## Number of Fisher Scoring iterations: 6
 ```
+
+```r
+qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
+```
+
+![plot of chunk rrt in esld](figure/rrt in esld.png) 
+
+## CHF and RRT models
+
 
 
 ```r
@@ -326,6 +337,9 @@ qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
 ![plot of chunk chf](figure/chf.png) 
 
+## CHF AKI RIFLE Stage I models
+
+
 ```r
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
 summary(glm.chf.aki)
@@ -409,47 +423,284 @@ summary(glm.chf.aki.lact)
 ## Number of Fisher Scoring iterations: 7
 ```
 
+## Stage 1 RIFLE AKI in CHF All Subset Regression
+
+We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)
+
 
 ```r
-glm.chf.vent <- glm(VentCPT~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+ESLD+Transplant.y,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.vent)
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
+
+plot(leaps)
+```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+
+## Stage 1 RIFLE AKI in CHF Odds ratio table
+
+We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)
+
+
+```r
+aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
+WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn,
+family = binomial(link = logit), data = chfnoesrd)
+int <- exp(confint(aki))
+```
+
+```
+## Waiting for profiling to be done...
+```
+
+```
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+```
+
+```r
+odds <- exp(coef(aki))
+akioddstable <- cbind(odds,int)
+akioddstable
+```
+
+```
+##                          odds    2.5 %  97.5 %
+## (Intercept)            0.6846 0.001213 264.647
+## log(PROCALCITONIN.d01) 2.0033 1.268276   3.617
+## LACTATE.d01            0.9544 0.638179   1.265
+## WBC.d01                0.9252 0.807300   1.027
+## DM2no DM2              0.2911 0.038014   1.643
+## CR.d01                 0.4175 0.092484   1.153
+## genderM                0.8931 0.129960   6.709
+## ALB.d01                1.3277 0.405007   5.002
+## ESLDnon ESLD           0.4399 0.044187  10.652
+## PHtnPHtn               2.1494 0.157377  26.938
+```
+
+
+## CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2)
+
+Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.
+
+
+
+```r
+anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
+data <- anonMASTER
+chf <- subset(data, CHF=="CHF")
+chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
+glm.chf.aki.rifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.aki.rifle2)
 ```
 
 ```
 ## 
 ## Call:
-## glm(formula = VentCPT ~ log(PROCALCITONIN.d01) + WBC.d01 + DM2 + 
-##     CR.d01 + gender + ALB.d01 + ESLD + PHtn + ESLD + Transplant.y, 
-##     family = binomial(link = logit), data = chfnoesrd)
+## glm(formula = devakirifle2 ~ log(PROCALCITONIN.d01) + LACTATE.d01 + 
+##     WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn + 
+##     Htn, family = binomial(link = logit), data = chfnoesrd)
 ## 
 ## Deviance Residuals: 
-##    Min      1Q  Median      3Q     Max  
-## -2.171  -0.847  -0.493   0.979   2.076  
+##     Min       1Q   Median       3Q      Max  
+## -1.3291  -0.2503  -0.1036  -0.0309   2.4720  
 ## 
 ## Coefficients:
-##                        Estimate Std. Error z value Pr(>|z|)   
-## (Intercept)              0.7355     1.2693    0.58   0.5622   
-## log(PROCALCITONIN.d01)   0.3318     0.1056    3.14   0.0017 **
-## WBC.d01                  0.0584     0.0248    2.35   0.0185 * 
-## DM2no DM2               -0.6378     0.3665   -1.74   0.0818 . 
-## CR.d01                  -0.1685     0.1651   -1.02   0.3075   
-## genderM                  1.3075     0.4176    3.13   0.0017 **
-## ALB.d01                 -0.6681     0.2937   -2.27   0.0229 * 
-## ESLDnon ESLD            -0.0985     0.7012   -0.14   0.8883   
-## PHtnPHtn                 1.3613     0.4613    2.95   0.0032 **
-## Transplant.yT           -1.0528     0.7864   -1.34   0.1807   
+##                         Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)            -1.51e+01   3.17e+03    0.00    0.996  
+## log(PROCALCITONIN.d01)  7.88e-01   3.57e-01    2.21    0.027 *
+## LACTATE.d01            -3.75e-01   3.62e-01   -1.04    0.299  
+## WBC.d01                -7.44e-03   6.86e-02   -0.11    0.914  
+## DM2no DM2              -2.31e+00   1.36e+00   -1.70    0.090 .
+## CR.d01                 -2.35e+00   1.40e+00   -1.68    0.092 .
+## genderM                 1.48e+00   1.70e+00    0.87    0.382  
+## ALB.d01                -7.14e-02   9.07e-01   -0.08    0.937  
+## ESLDnon ESLD            1.58e+01   3.17e+03    0.00    0.996  
+## PHtnPHtn                6.28e-01   1.77e+00    0.35    0.723  
+## Htnno htn              -9.96e-01   1.15e+00   -0.87    0.386  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 230.35  on 169  degrees of freedom
-## Residual deviance: 186.51  on 160  degrees of freedom
-##   (37 observations deleted due to missingness)
-## AIC: 206.5
+##     Null deviance: 46.571  on 109  degrees of freedom
+## Residual deviance: 30.074  on  99  degrees of freedom
+##   (97 observations deleted due to missingness)
+## AIC: 52.07
 ## 
-## Number of Fisher Scoring iterations: 4
+## Number of Fisher Scoring iterations: 18
 ```
+
+```r
+glmrifle2 <- glm.chf.aki.rifle2 
+
+int <- exp(confint(glm.chf.aki.rifle2))
+```
+
+```
+## Waiting for profiling to be done...
+```
+
+```r
+odds <- exp(coef(glm.chf.aki.rifle2))
+akioddstable <- cbind(odds,int)
+akioddstable
+```
+
+```
+##                             odds      2.5 %     97.5 %
+## (Intercept)            2.703e-07         NA 4.829e+129
+## log(PROCALCITONIN.d01) 2.198e+00  1.195e+00  5.109e+00
+## LACTATE.d01            6.871e-01  2.782e-01  1.180e+00
+## WBC.d01                9.926e-01  8.472e-01  1.120e+00
+## DM2no DM2              9.937e-02  3.463e-03  1.073e+00
+## CR.d01                 9.545e-02  3.071e-03  7.734e-01
+## genderM                4.408e+00  2.292e-01  2.557e+02
+## ALB.d01                9.311e-01  1.318e-01  5.588e+00
+## ESLDnon ESLD           7.286e+06 4.079e-130         NA
+## PHtnPHtn               1.875e+00  4.221e-02  6.776e+01
+## Htnno htn              3.694e-01  2.912e-02  3.203e+00
+```
+
+
+```r
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+```
+
+```
+## The following object is masked _by_ .GlobalEnv:
+## 
+##     aki
+```
+
+```r
+leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
+
+plot(leaps)
+```
+
+![plot of chunk chf aki RIFLE 2](figure/chf aki RIFLE 2.png) 
+
+
+
+
+
+```r
+anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
+anonmaster4 <- mutate(anonMASTER3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE"))
+
+data <- anonmaster4
+
+chf <- subset(data, CHF=="CHF")
+
+chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
+## glm for rifle3
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+
+summary(chfrifle3)
+```
+
+```
+## 
+## Call:
+## glm(formula = rifle3 ~ log(PROCALCITONIN.d01) + LACTATE.d01 + 
+##     WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn + 
+##     Htn, family = binomial(link = logit), data = chfnoesrd)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.163  -0.454  -0.264  -0.154   2.934  
+## 
+## Coefficients:
+##                        Estimate Std. Error z value Pr(>|z|)   
+## (Intercept)             -2.9755     2.9986   -0.99    0.321   
+## log(PROCALCITONIN.d01)   0.5287     0.2333    2.27    0.023 * 
+## LACTATE.d01              0.0451     0.1359    0.33    0.740   
+## WBC.d01                 -0.0399     0.0534   -0.75    0.455   
+## DM2no DM2                0.1424     0.7733    0.18    0.854   
+## CR.d01                   0.6018     0.3652    1.65    0.099 . 
+## genderM                  0.8695     0.9869    0.88    0.378   
+## ALB.d01                  0.3768     0.6727    0.56    0.575   
+## ESLDnon ESLD            -2.8961     1.0314   -2.81    0.005 **
+## PHtnPHtn                 1.2274     1.0826    1.13    0.257   
+## Htnno htn               -0.1182     0.7693   -0.15    0.878   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 79.923  on 109  degrees of freedom
+## Residual deviance: 55.558  on  99  degrees of freedom
+##   (97 observations deleted due to missingness)
+## AIC: 77.56
+## 
+## Number of Fisher Scoring iterations: 6
+```
+
+```r
+##odds ratio table
+int <- exp(confint(chfrifle3))
+```
+
+```
+## Waiting for profiling to be done...
+```
+
+```r
+odds <- exp(coef(chfrifle3))
+akioddstable <- cbind(odds,int)
+akioddstable
+```
+
+```
+##                           odds     2.5 %  97.5 %
+## (Intercept)            0.05102 9.575e-05 16.1762
+## log(PROCALCITONIN.d01) 1.69677 1.104e+00  2.8158
+## LACTATE.d01            1.04612 7.828e-01  1.3554
+## WBC.d01                0.96086 8.552e-01  1.0544
+## DM2no DM2              1.15303 2.485e-01  5.5152
+## CR.d01                 1.82543 1.122e+00  4.1288
+## genderM                2.38571 3.792e-01 19.7880
+## ALB.d01                1.45756 3.930e-01  5.8759
+## ESLDnon ESLD           0.05524 6.299e-03  0.4135
+## PHtnPHtn               3.41230 3.817e-01 30.7918
+## Htnno htn              0.88854 1.899e-01  4.1518
+```
+
+
+```r
+library(MASS)
+library(leaps)
+attach(chfnoesrd)
+```
+
+```
+## The following object is masked _by_ .GlobalEnv:
+## 
+##     aki
+```
+
+```r
+leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit), nbest=10)
+```
+
+```
+## Error: invalid type (list) for variable '(family)'
+```
+
+```r
+plot(leaps)
+```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+
+
+## Ventilator data 
+GLM regression for the Vent CPT code, which includes lactate on d01
 
 
 ```r
@@ -494,201 +745,5 @@ summary(glm.chf.vent.lact)
 ```
 
 
-```r
-library(MASS)
-library(leaps)
-attach(chfnoesrd)
-leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
-summary(leaps)
 ```
-
-```
-## Subset selection object
-## Call: regsubsets.formula(devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 + 
-##     WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn + 
-##     Htn, data = chfnoesrd, nbest = 10)
-## 10 Variables  (and intercept)
-##                        Forced in Forced out
-## log(PROCALCITONIN.d01)     FALSE      FALSE
-## LACTATE.d01                FALSE      FALSE
-## WBC.d01                    FALSE      FALSE
-## DM2no DM2                  FALSE      FALSE
-## CR.d01                     FALSE      FALSE
-## genderM                    FALSE      FALSE
-## ALB.d01                    FALSE      FALSE
-## ESLDnon ESLD               FALSE      FALSE
-## PHtnPHtn                   FALSE      FALSE
-## Htnno htn                  FALSE      FALSE
-## 10 subsets of each size up to 8
-## Selection Algorithm: exhaustive
-##           log(PROCALCITONIN.d01) LACTATE.d01 WBC.d01 DM2no DM2 CR.d01
-## 1  ( 1 )  "*"                    " "         " "     " "       " "   
-## 1  ( 2 )  " "                    " "         " "     "*"       " "   
-## 1  ( 3 )  " "                    " "         " "     " "       " "   
-## 1  ( 4 )  " "                    " "         " "     " "       "*"   
-## 1  ( 5 )  " "                    " "         "*"     " "       " "   
-## 1  ( 6 )  " "                    " "         " "     " "       " "   
-## 1  ( 7 )  " "                    "*"         " "     " "       " "   
-## 1  ( 8 )  " "                    " "         " "     " "       " "   
-## 1  ( 9 )  " "                    " "         " "     " "       " "   
-## 1  ( 10 ) " "                    " "         " "     " "       " "   
-## 2  ( 1 )  "*"                    " "         " "     "*"       " "   
-## 2  ( 2 )  "*"                    " "         " "     " "       " "   
-## 2  ( 3 )  "*"                    " "         "*"     " "       " "   
-## 2  ( 4 )  "*"                    " "         " "     " "       "*"   
-## 2  ( 5 )  "*"                    " "         " "     " "       " "   
-## 2  ( 6 )  "*"                    " "         " "     " "       " "   
-## 2  ( 7 )  "*"                    "*"         " "     " "       " "   
-## 2  ( 8 )  "*"                    " "         " "     " "       " "   
-## 2  ( 9 )  "*"                    " "         " "     " "       " "   
-## 2  ( 10 ) " "                    " "         " "     "*"       " "   
-## 3  ( 1 )  "*"                    " "         "*"     "*"       " "   
-## 3  ( 2 )  "*"                    " "         " "     "*"       "*"   
-## 3  ( 3 )  "*"                    " "         " "     "*"       " "   
-## 3  ( 4 )  "*"                    " "         "*"     " "       "*"   
-## 3  ( 5 )  "*"                    " "         "*"     " "       " "   
-## 3  ( 6 )  "*"                    " "         " "     " "       "*"   
-## 3  ( 7 )  "*"                    "*"         " "     "*"       " "   
-## 3  ( 8 )  "*"                    " "         " "     "*"       " "   
-## 3  ( 9 )  "*"                    " "         " "     "*"       " "   
-## 3  ( 10 ) "*"                    " "         " "     "*"       " "   
-## 4  ( 1 )  "*"                    " "         "*"     "*"       "*"   
-## 4  ( 2 )  "*"                    " "         "*"     "*"       " "   
-## 4  ( 3 )  "*"                    " "         " "     "*"       "*"   
-## 4  ( 4 )  "*"                    " "         "*"     "*"       " "   
-## 4  ( 5 )  "*"                    " "         "*"     "*"       " "   
-## 4  ( 6 )  "*"                    " "         "*"     " "       "*"   
-## 4  ( 7 )  "*"                    "*"         "*"     "*"       " "   
-## 4  ( 8 )  "*"                    " "         "*"     "*"       " "   
-## 4  ( 9 )  "*"                    " "         "*"     "*"       " "   
-## 4  ( 10 ) "*"                    "*"         " "     "*"       "*"   
-## 5  ( 1 )  "*"                    " "         "*"     "*"       "*"   
-## 5  ( 2 )  "*"                    " "         "*"     "*"       "*"   
-## 5  ( 3 )  "*"                    "*"         "*"     "*"       "*"   
-## 5  ( 4 )  "*"                    " "         "*"     "*"       "*"   
-## 5  ( 5 )  "*"                    " "         "*"     "*"       "*"   
-## 5  ( 6 )  "*"                    " "         "*"     "*"       "*"   
-## 5  ( 7 )  "*"                    "*"         "*"     "*"       " "   
-## 5  ( 8 )  "*"                    " "         "*"     "*"       " "   
-## 5  ( 9 )  "*"                    "*"         " "     "*"       "*"   
-## 5  ( 10 ) "*"                    " "         "*"     "*"       " "   
-## 6  ( 1 )  "*"                    "*"         "*"     "*"       "*"   
-## 6  ( 2 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 3 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 4 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 5 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 6 )  "*"                    "*"         "*"     "*"       "*"   
-## 6  ( 7 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 8 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 9 )  "*"                    " "         "*"     "*"       "*"   
-## 6  ( 10 ) "*"                    "*"         "*"     "*"       "*"   
-## 7  ( 1 )  "*"                    "*"         "*"     "*"       "*"   
-## 7  ( 2 )  "*"                    "*"         "*"     "*"       "*"   
-## 7  ( 3 )  "*"                    "*"         "*"     "*"       "*"   
-## 7  ( 4 )  "*"                    "*"         "*"     "*"       "*"   
-## 7  ( 5 )  "*"                    " "         "*"     "*"       "*"   
-## 7  ( 6 )  "*"                    " "         "*"     "*"       "*"   
-## 7  ( 7 )  "*"                    " "         "*"     "*"       "*"   
-## 7  ( 8 )  "*"                    " "         "*"     "*"       "*"   
-## 7  ( 9 )  "*"                    " "         "*"     "*"       "*"   
-## 7  ( 10 ) "*"                    " "         "*"     "*"       "*"   
-## 8  ( 1 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 2 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 3 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 4 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 5 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 6 )  "*"                    "*"         "*"     "*"       "*"   
-## 8  ( 7 )  "*"                    " "         "*"     "*"       "*"   
-## 8  ( 8 )  "*"                    " "         "*"     "*"       "*"   
-## 8  ( 9 )  "*"                    " "         "*"     "*"       "*"   
-## 8  ( 10 ) "*"                    " "         "*"     "*"       "*"   
-##           genderM ALB.d01 ESLDnon ESLD PHtnPHtn Htnno htn
-## 1  ( 1 )  " "     " "     " "          " "      " "      
-## 1  ( 2 )  " "     " "     " "          " "      " "      
-## 1  ( 3 )  " "     "*"     " "          " "      " "      
-## 1  ( 4 )  " "     " "     " "          " "      " "      
-## 1  ( 5 )  " "     " "     " "          " "      " "      
-## 1  ( 6 )  " "     " "     "*"          " "      " "      
-## 1  ( 7 )  " "     " "     " "          " "      " "      
-## 1  ( 8 )  " "     " "     " "          " "      "*"      
-## 1  ( 9 )  "*"     " "     " "          " "      " "      
-## 1  ( 10 ) " "     " "     " "          "*"      " "      
-## 2  ( 1 )  " "     " "     " "          " "      " "      
-## 2  ( 2 )  " "     "*"     " "          " "      " "      
-## 2  ( 3 )  " "     " "     " "          " "      " "      
-## 2  ( 4 )  " "     " "     " "          " "      " "      
-## 2  ( 5 )  " "     " "     " "          "*"      " "      
-## 2  ( 6 )  " "     " "     " "          " "      "*"      
-## 2  ( 7 )  " "     " "     " "          " "      " "      
-## 2  ( 8 )  " "     " "     "*"          " "      " "      
-## 2  ( 9 )  "*"     " "     " "          " "      " "      
-## 2  ( 10 ) " "     "*"     " "          " "      " "      
-## 3  ( 1 )  " "     " "     " "          " "      " "      
-## 3  ( 2 )  " "     " "     " "          " "      " "      
-## 3  ( 3 )  " "     "*"     " "          " "      " "      
-## 3  ( 4 )  " "     " "     " "          " "      " "      
-## 3  ( 5 )  " "     "*"     " "          " "      " "      
-## 3  ( 6 )  " "     "*"     " "          " "      " "      
-## 3  ( 7 )  " "     " "     " "          " "      " "      
-## 3  ( 8 )  " "     " "     " "          "*"      " "      
-## 3  ( 9 )  " "     " "     "*"          " "      " "      
-## 3  ( 10 ) " "     " "     " "          " "      "*"      
-## 4  ( 1 )  " "     " "     " "          " "      " "      
-## 4  ( 2 )  " "     "*"     " "          " "      " "      
-## 4  ( 3 )  " "     "*"     " "          " "      " "      
-## 4  ( 4 )  " "     " "     " "          " "      "*"      
-## 4  ( 5 )  " "     " "     " "          "*"      " "      
-## 4  ( 6 )  " "     "*"     " "          " "      " "      
-## 4  ( 7 )  " "     " "     " "          " "      " "      
-## 4  ( 8 )  "*"     " "     " "          " "      " "      
-## 4  ( 9 )  " "     " "     "*"          " "      " "      
-## 4  ( 10 ) " "     " "     " "          " "      " "      
-## 5  ( 1 )  " "     "*"     " "          " "      " "      
-## 5  ( 2 )  " "     " "     " "          "*"      " "      
-## 5  ( 3 )  " "     " "     " "          " "      " "      
-## 5  ( 4 )  " "     " "     " "          " "      "*"      
-## 5  ( 5 )  "*"     " "     " "          " "      " "      
-## 5  ( 6 )  " "     " "     "*"          " "      " "      
-## 5  ( 7 )  " "     "*"     " "          " "      " "      
-## 5  ( 8 )  " "     "*"     " "          " "      "*"      
-## 5  ( 9 )  " "     "*"     " "          " "      " "      
-## 5  ( 10 ) " "     "*"     " "          "*"      " "      
-## 6  ( 1 )  " "     "*"     " "          " "      " "      
-## 6  ( 2 )  " "     "*"     " "          "*"      " "      
-## 6  ( 3 )  "*"     "*"     " "          " "      " "      
-## 6  ( 4 )  " "     "*"     "*"          " "      " "      
-## 6  ( 5 )  " "     "*"     " "          " "      "*"      
-## 6  ( 6 )  " "     " "     " "          "*"      " "      
-## 6  ( 7 )  " "     " "     " "          "*"      "*"      
-## 6  ( 8 )  " "     " "     "*"          "*"      " "      
-## 6  ( 9 )  "*"     " "     " "          "*"      " "      
-## 6  ( 10 ) " "     " "     " "          " "      "*"      
-## 7  ( 1 )  " "     "*"     " "          "*"      " "      
-## 7  ( 2 )  " "     "*"     "*"          " "      " "      
-## 7  ( 3 )  "*"     "*"     " "          " "      " "      
-## 7  ( 4 )  " "     "*"     " "          " "      "*"      
-## 7  ( 5 )  " "     "*"     " "          "*"      "*"      
-## 7  ( 6 )  " "     "*"     "*"          "*"      " "      
-## 7  ( 7 )  "*"     "*"     " "          "*"      " "      
-## 7  ( 8 )  " "     "*"     "*"          " "      "*"      
-## 7  ( 9 )  "*"     "*"     "*"          " "      " "      
-## 7  ( 10 ) "*"     "*"     " "          " "      "*"      
-## 8  ( 1 )  " "     "*"     "*"          "*"      " "      
-## 8  ( 2 )  " "     "*"     " "          "*"      "*"      
-## 8  ( 3 )  "*"     "*"     " "          "*"      " "      
-## 8  ( 4 )  "*"     "*"     "*"          " "      " "      
-## 8  ( 5 )  " "     "*"     "*"          " "      "*"      
-## 8  ( 6 )  "*"     "*"     " "          " "      "*"      
-## 8  ( 7 )  " "     "*"     "*"          "*"      "*"      
-## 8  ( 8 )  "*"     "*"     " "          "*"      "*"      
-## 8  ( 9 )  "*"     "*"     "*"          "*"      " "      
-## 8  ( 10 ) "*"     "*"     "*"          " "      "*"
-```
-
-```r
-plot(leaps)
-```
-
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
-
 
