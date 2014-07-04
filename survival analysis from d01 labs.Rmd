@@ -48,6 +48,12 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smo
 
 ```{r, cache=TRUE}
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
+
+qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
+
+qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
+
+
 ```
 
 ```{r, cache=TRUE}
@@ -73,10 +79,37 @@ chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
 glm.chf.aki <- glm(aki~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb,data=chfnoesrd, family=binomial)
 glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt)
+
+glm.chf.rrt.lact <- glm(rrtbin~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+summary(glm.chf.rrt.lact)
+
+glm.chf.rrt.lact2 <- glm(rrtbin~+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+summary(glm.chf.rrt.lact2)
+
+
 qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
 summary(glm.chf.aki)
+
+glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
+
+summary(glm.chf.aki.lact)
+
+
+
+```
+
+```{r,cache=TRUE}
+glm.chf.vent <- glm(VentCPT~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+ESLD+Transplant.y,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.vent)
+
+```
+
+```{r,cache=TRUE}
+
+glm.chf.vent.lact <- glm(VentCPT~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.vent.lact)
 
 ```
 
