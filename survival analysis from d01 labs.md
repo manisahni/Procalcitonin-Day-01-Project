@@ -4,31 +4,12 @@
 
 
 ```r
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6)
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
 View(anonMASTER)
 library(ggplot2)
 library(caret)
-```
-
-```
-## Loading required package: lattice
-```
-
-```r
 library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
 ```
 
 ## Exploratory Graphs
@@ -38,10 +19,6 @@ library(dplyr)
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
-```
-
-```
-## Warning: Removed 221 rows containing missing values (geom_point).
 ```
 
 ![plot of chunk survival lactate](figure/survival lactate.png) 
@@ -56,22 +33,11 @@ data <- anonMASTER
 qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"), method=lm)
 ```
 
-```
-## Warning: Removed 221 rows containing missing values (stat_smooth).
-## Warning: Removed 221 rows containing missing values (geom_point).
-```
-
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
 
 
 ```r
 qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
-```
-
-```
-## Warning: Removed 202 rows containing missing values (stat_smooth).
-## Warning: Removed 19 rows containing missing values (stat_smooth).
-## Warning: Removed 221 rows containing missing values (geom_point).
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
@@ -80,67 +46,48 @@ qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smoot
 qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```
-## Warning: Removed 13 rows containing missing values (stat_smooth).
-## Warning: Removed 208 rows containing missing values (stat_smooth).
-## Warning: Removed 221 rows containing missing values (geom_point).
-```
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+![plot of chunk graph](figure/graph.png) 
 
 
 ```r
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=PROCALCITONIN.d01, geom=c("point","smooth"), method=lm)
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk graph ](figure/graph .png) 
 
 
 ```r
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("point","smooth"), method=lm)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+![plot of chunk graph procal survival aki](figure/graph procal survival aki.png) 
 
 
 ```r
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+![plot of chunk graph procal survival aki ](figure/graph procal survival aki .png) 
 
 
 ```r
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 ```
 
-```
-## Warning: Removed 203 rows containing missing values (stat_smooth).
-## Warning: Removed 16 rows containing missing values (stat_smooth).
-## Warning: Removed 2 rows containing missing values (stat_smooth).
-## Warning: Removed 221 rows containing missing values (geom_point).
-```
-
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-71.png) 
+![plot of chunk survival lactate by aki](figure/survival lactate by aki1.png) 
 
 ```r
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-72.png) 
+![plot of chunk survival lactate by aki](figure/survival lactate by aki2.png) 
 
 
 ```r
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```
-## Warning: Removed 13 rows containing missing values (stat_smooth).
-## Warning: Removed 208 rows containing missing values (stat_smooth).
-## Warning: Removed 221 rows containing missing values (geom_point).
-```
-
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+![plot of chunk graph lactate survival by esld](figure/graph lactate survival by esld.png) 
 ## ** ESLD AKI  models **
 
 Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
@@ -193,7 +140,7 @@ summary(g)
 qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
 ```
 
-![plot of chunk rrt in esld](figure/rrt in esld.png) 
+![plot of chunk glm rrt in esld](figure/glm rrt in esld.png) 
 
 ## CHF and RRT models
 
@@ -331,11 +278,7 @@ summary(glm.chf.rrt.lact2)
 qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 ```
 
-```
-## Warning: Removed 1 rows containing missing values (geom_point).
-```
-
-![plot of chunk chf](figure/chf.png) 
+![plot of chunk glm chf rrt ](figure/glm chf rrt .png) 
 
 ## CHF AKI RIFLE Stage I models
 
@@ -437,7 +380,7 @@ leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01
 plot(leaps)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+![plot of chunk chf aki rifle 1 all subsets](figure/chf aki rifle 1 all subsets.png) 
 
 ## Stage 1 RIFLE AKI in CHF Odds ratio table
 
@@ -453,11 +396,6 @@ int <- exp(confint(aki))
 
 ```
 ## Waiting for profiling to be done...
-```
-
-```
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ```
 
 ```r
@@ -564,6 +502,9 @@ akioddstable
 ## Htnno htn              3.694e-01  2.912e-02  3.203e+00
 ```
 
+All subsets regression fo RIFLE2 renal failure in CHF
+
+
 
 ```r
 library(MASS)
@@ -575,6 +516,16 @@ attach(chfnoesrd)
 ## The following object is masked _by_ .GlobalEnv:
 ## 
 ##     aki
+## The following objects are masked from chfnoesrd (position 3):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
+##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
+##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
+##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
+##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
+##     WBC.d01, X, X.1, X30d
 ```
 
 ```r
@@ -583,9 +534,9 @@ leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+
 plot(leaps)
 ```
 
-![plot of chunk chf aki RIFLE 2](figure/chf aki RIFLE 2.png) 
+![plot of chunk chf aki RIFLE 2 all subsets](figure/chf aki RIFLE 2 all subsets.png) 
 
-
+We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.
 
 
 
@@ -670,6 +621,7 @@ akioddstable
 ## PHtnPHtn               3.41230 3.817e-01 30.7918
 ## Htnno htn              0.88854 1.899e-01  4.1518
 ```
+This is an all subsets regression of RIFLE 3 renal failure in CHF patients
 
 
 ```r
@@ -682,6 +634,26 @@ attach(chfnoesrd)
 ## The following object is masked _by_ .GlobalEnv:
 ## 
 ##     aki
+## The following objects are masked from chfnoesrd (position 3):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
+##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
+##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
+##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
+##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
+##     WBC.d01, X, X.1, X30d
+## The following objects are masked from chfnoesrd (position 4):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
+##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
+##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
+##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
+##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
+##     WBC.d01, X, X.1, X30d
 ```
 
 ```r
@@ -696,7 +668,7 @@ leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d0
 plot(leaps)
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+![plot of chunk chf aki rifle 3 all subsets](figure/chf aki rifle 3 all subsets.png) 
 
 
 ## Ventilator data 

@@ -3,6 +3,7 @@
 ========================================================
 
 ```{r loading up the packages, cache=TRUE}
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6)
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
 View(anonMASTER)
 library(ggplot2)
@@ -13,7 +14,7 @@ library(dplyr)
 
 ## Exploratory Graphs
 
-```{r survival lactate, cache=TRUE}
+```{r survival lactate, cache=TRUE, warning=FALSE}
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
@@ -30,24 +31,24 @@ qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"),
 ```{r, cache=TRUE}
 qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
-```{r , cache=TRUE}
+```{r graph, cache=TRUE}
 qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r graph , cache=TRUE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=PROCALCITONIN.d01, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r graph procal survival aki, cache=TRUE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
 ```
 
-```{r, cache=TRUE}
+```{r graph procal survival aki , cache=TRUE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r, cache=TRUE}
+```{r survival lactate by aki, cache=TRUE}
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
@@ -55,7 +56,7 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smoo
 
 ```
 
-```{r, cache=TRUE}
+```{r graph lactate survival by esld, cache=TRUE}
 
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 
@@ -64,7 +65,7 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"),
 
 Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
 
-```{r, rrt in esld, cache=TRUE}
+```{r glm rrt in esld, cache=TRUE}
 ## define the esld subset and exclude the chronic dialysis patients##
 esld <- subset(data, ESLD=="ESLD")
 
@@ -81,7 +82,7 @@ qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point
 ## CHF and RRT models
 
 
-```{r chf, cache=TRUE}
+```{r glm chf rrt , cache=TRUE}
 
 chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
@@ -103,7 +104,7 @@ qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
 ## CHF AKI RIFLE Stage I models
 
-```{r, cache=TRUE}
+```{r glm chf aki, cache=TRUE}
 
 
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
@@ -121,7 +122,7 @@ summary(glm.chf.aki.lact)
 
 We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)
 
-```{r, cache=TRUE}
+```{r chf aki rifle 1 all subsets, cache=TRUE}
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
@@ -135,7 +136,7 @@ plot(leaps)
 
 We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)
 
-```{r, chf aki odds ratio table, cache=TRUE}
+```{r chf aki rifle 1 odds ratio table, cache=TRUE}
 aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
 WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn,
 family = binomial(link = logit), data = chfnoesrd)
@@ -169,7 +170,10 @@ akioddstable
 
 ```
 
-```{r, chf aki RIFLE 2, cache=TRUE}
+All subsets regression fo RIFLE2 renal failure in CHF
+
+
+```{r chf aki RIFLE 2 all subsets, cache=TRUE}
 
 library(MASS)
 library(leaps)
@@ -180,10 +184,10 @@ plot(leaps)
 
 ```
 
+We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.
 
 
-
-```{r rifle 3 in aki, cache=TRUE}
+```{r rifle 3  aki in CHF, cache=TRUE}
 
 anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
 anonmaster4 <- mutate(anonMASTER3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE"))
@@ -205,8 +209,9 @@ akioddstable <- cbind(odds,int)
 akioddstable
 
 ```
+This is an all subsets regression of RIFLE 3 renal failure in CHF patients
 
-```{r, cache=TRUE}
+```{r chf aki rifle 3 all subsets, cache=TRUE}
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
@@ -221,7 +226,7 @@ plot(leaps)
 ## Ventilator data 
 GLM regression for the Vent CPT code, which includes lactate on d01
 
-```{r,cache=TRUE}
+```{r Vent,cache=TRUE}
 
 
 glm.chf.vent.lact <- glm(VentCPT~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
