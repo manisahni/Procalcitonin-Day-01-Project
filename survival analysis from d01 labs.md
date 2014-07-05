@@ -1,10 +1,9 @@
-## Survival Analysis from d01 Procalcitonin Project
+## Exploratory Survival Graphs from d01 Procalcitonin Project and the CHF,ESLD ,GLOBAL, renal failure project
 
 ========================================================
 
 
 ```r
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6)
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
 
 library(ggplot2)
@@ -414,7 +413,7 @@ leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01
 plot(leaps)
 ```
 
-![plot of chunk chf aki rifle 1 all subsets](figure/chf aki rifle 1 all subsets.png) 
+![plot of chunk CHF AKI RIFLE 1 all subsets](figure/CHF AKI RIFLE 1 all subsets.png) 
 
 ## Stage 1 RIFLE AKI in CHF Odds ratio table
 
@@ -555,6 +554,16 @@ attach(chfnoesrd)
 ## The following object is masked _by_ .GlobalEnv:
 ## 
 ##     aki
+## The following objects are masked from chfnoesrd (position 3):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
+##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
+##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
+##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
+##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
+##     WBC.d01, X, X.1, X30d
 ```
 
 ```r
@@ -563,7 +572,7 @@ leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+
 plot(leaps)
 ```
 
-![plot of chunk chf aki RIFLE 2 all subsets](figure/chf aki RIFLE 2 all subsets.png) 
+![plot of chunk CHF RIFLE 2 AKI all subsets](figure/CHF RIFLE 2 AKI all subsets.png) 
 
 ## CHF and RIFLE 3 AKI Models
 
@@ -701,8 +710,63 @@ leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d0
 plot(leaps)
 ```
 
-![plot of chunk chf aki rifle 3 all subsets](figure/chf aki rifle 3 all subsets.png) 
+![plot of chunk CHF AKI RIFLE 3 all subsets](figure/CHF AKI RIFLE 3 all subsets.png) 
 
+## Global RIFLE 3 Renal Failure
+
+
+```r
+globalnoesrd<- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5" )
+globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=globalnoesrd, family=binomial(link=logit))
+summary(globalrifle3)
+```
+
+```
+## 
+## Call:
+## glm(formula = rifle3 ~ log(PROCALCITONIN.d01) + LACTATE.d01 + 
+##     WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn + 
+##     Htn, family = binomial(link = logit), data = globalnoesrd)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.057  -0.373  -0.260  -0.169   2.907  
+## 
+## Coefficients:
+##                        Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)            -0.98674    1.21440   -0.81  0.41649    
+## log(PROCALCITONIN.d01)  0.20033    0.11848    1.69  0.09087 .  
+## LACTATE.d01             0.09899    0.07226    1.37  0.17071    
+## WBC.d01                -0.00556    0.02632   -0.21  0.83276    
+## DM2no DM2              -0.71231    0.45634   -1.56  0.11855    
+## CR.d01                  0.46108    0.12755    3.61  0.00030 ***
+## genderM                 0.14831    0.46393    0.32  0.74921    
+## ALB.d01                -0.33238    0.31959   -1.04  0.29834    
+## ESLDnon ESLD           -1.86970    0.51221   -3.65  0.00026 ***
+## PHtnPHtn                0.62331    0.60122    1.04  0.29986    
+## Htnno htn              -0.10309    0.45947   -0.22  0.82248    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 206.52  on 359  degrees of freedom
+## Residual deviance: 158.07  on 349  degrees of freedom
+##   (243 observations deleted due to missingness)
+## AIC: 180.1
+## 
+## Number of Fisher Scoring iterations: 6
+```
+
+## Global RIFLE 2 Renal Failure
+
+
+```r
+leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=anonmaster4, nbest=10)
+plot(leaps,scale="r2")
+```
+
+![plot of chunk Global  RIFLE 2 Renal Failure](figure/Global  RIFLE 2 Renal Failure.png) 
 
 ## Ventilator data 
 GLM regression for the Vent CPT code, which includes lactate on d01
