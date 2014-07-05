@@ -5,7 +5,7 @@
 ```{r loading up the packages, cache=TRUE}
 opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6)
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
-View(anonMASTER)
+
 library(ggplot2)
 library(caret)
 library(dplyr)
@@ -120,7 +120,7 @@ summary(glm.chf.aki.lact)
 
 ## Stage 1 RIFLE AKI in CHF All Subset Regression
 
-We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)
+*We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)*
 
 ```{r chf aki rifle 1 all subsets, cache=TRUE}
 library(MASS)
@@ -134,7 +134,7 @@ plot(leaps)
 
 ## Stage 1 RIFLE AKI in CHF Odds ratio table
 
-We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)
+*We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)*
 
 ```{r chf aki rifle 1 odds ratio table, cache=TRUE}
 aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
@@ -150,7 +150,7 @@ akioddstable
 
 ## CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2)
 
-Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.
+*Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.*
 
 
 ```{r CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2), cache=TRUE, warning=FALSE}
@@ -170,10 +170,10 @@ akioddstable
 
 ```
 
-All subsets regression fo RIFLE2 renal failure in CHF
+*All subsets regression fo RIFLE2 renal failure in CHF*
 
 
-```{r chf aki RIFLE 2 all subsets, cache=TRUE}
+```{r chf aki RIFLE 2 all subsets, cache=TRUE,warning=FALSE}
 
 library(MASS)
 library(leaps)
@@ -184,10 +184,12 @@ plot(leaps)
 
 ```
 
-We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.
+## CHF and RIFLE 3 AKI Models
+
+*We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.*
 
 
-```{r rifle 3  aki in CHF, cache=TRUE}
+```{r rifle 3  aki in CHF, cache=TRUE,warning=TRUE}
 
 anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
 anonmaster4 <- mutate(anonMASTER3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE"))
@@ -209,9 +211,11 @@ akioddstable <- cbind(odds,int)
 akioddstable
 
 ```
-This is an all subsets regression of RIFLE 3 renal failure in CHF patients
 
-```{r chf aki rifle 3 all subsets, cache=TRUE}
+
+*This is an all subsets regression of RIFLE 3 renal failure in CHF patients*
+
+```{r chf aki rifle 3 all subsets, cache=TRUE,warning=FALSE}
 library(MASS)
 library(leaps)
 attach(chfnoesrd)

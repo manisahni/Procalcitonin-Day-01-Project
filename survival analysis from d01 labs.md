@@ -6,7 +6,7 @@
 ```r
 opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6)
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
-View(anonMASTER)
+
 library(ggplot2)
 library(caret)
 library(dplyr)
@@ -33,6 +33,11 @@ data <- anonMASTER
 qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"), method=lm)
 ```
 
+```
+## Warning: Removed 221 rows containing missing values (stat_smooth).
+## Warning: Removed 221 rows containing missing values (geom_point).
+```
+
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
 
 
@@ -40,10 +45,22 @@ qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"),
 qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
 ```
 
+```
+## Warning: Removed 202 rows containing missing values (stat_smooth).
+## Warning: Removed 19 rows containing missing values (stat_smooth).
+## Warning: Removed 221 rows containing missing values (geom_point).
+```
+
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
 ```r
 qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
+```
+
+```
+## Warning: Removed 13 rows containing missing values (stat_smooth).
+## Warning: Removed 208 rows containing missing values (stat_smooth).
+## Warning: Removed 221 rows containing missing values (geom_point).
 ```
 
 ![plot of chunk graph](figure/graph.png) 
@@ -74,6 +91,13 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smo
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 ```
 
+```
+## Warning: Removed 203 rows containing missing values (stat_smooth).
+## Warning: Removed 16 rows containing missing values (stat_smooth).
+## Warning: Removed 2 rows containing missing values (stat_smooth).
+## Warning: Removed 221 rows containing missing values (geom_point).
+```
+
 ![plot of chunk survival lactate by aki](figure/survival lactate by aki1.png) 
 
 ```r
@@ -85,6 +109,12 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smoo
 
 ```r
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
+```
+
+```
+## Warning: Removed 13 rows containing missing values (stat_smooth).
+## Warning: Removed 208 rows containing missing values (stat_smooth).
+## Warning: Removed 221 rows containing missing values (geom_point).
 ```
 
 ![plot of chunk graph lactate survival by esld](figure/graph lactate survival by esld.png) 
@@ -278,6 +308,10 @@ summary(glm.chf.rrt.lact2)
 qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 ```
 
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
 ![plot of chunk glm chf rrt ](figure/glm chf rrt .png) 
 
 ## CHF AKI RIFLE Stage I models
@@ -368,7 +402,7 @@ summary(glm.chf.aki.lact)
 
 ## Stage 1 RIFLE AKI in CHF All Subset Regression
 
-We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)
+*We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)*
 
 
 ```r
@@ -384,7 +418,7 @@ plot(leaps)
 
 ## Stage 1 RIFLE AKI in CHF Odds ratio table
 
-We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)
+*We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)*
 
 
 ```r
@@ -396,6 +430,11 @@ int <- exp(confint(aki))
 
 ```
 ## Waiting for profiling to be done...
+```
+
+```
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ```
 
 ```r
@@ -421,7 +460,7 @@ akioddstable
 
 ## CHF AKI RIFLE Stage 2 (d2maxcr/Cr.d01 >2)
 
-Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.
+*Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.*
 
 
 
@@ -502,7 +541,7 @@ akioddstable
 ## Htnno htn              3.694e-01  2.912e-02  3.203e+00
 ```
 
-All subsets regression fo RIFLE2 renal failure in CHF
+*All subsets regression fo RIFLE2 renal failure in CHF*
 
 
 
@@ -516,16 +555,6 @@ attach(chfnoesrd)
 ## The following object is masked _by_ .GlobalEnv:
 ## 
 ##     aki
-## The following objects are masked from chfnoesrd (position 3):
-## 
-##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
-##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
-##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
-##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
-##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
-##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
-##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
-##     WBC.d01, X, X.1, X30d
 ```
 
 ```r
@@ -536,7 +565,9 @@ plot(leaps)
 
 ![plot of chunk chf aki RIFLE 2 all subsets](figure/chf aki RIFLE 2 all subsets.png) 
 
-We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.
+## CHF and RIFLE 3 AKI Models
+
+*We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.*
 
 
 
@@ -621,7 +652,9 @@ akioddstable
 ## PHtnPHtn               3.41230 3.817e-01 30.7918
 ## Htnno htn              0.88854 1.899e-01  4.1518
 ```
-This is an all subsets regression of RIFLE 3 renal failure in CHF patients
+
+
+*This is an all subsets regression of RIFLE 3 renal failure in CHF patients*
 
 
 ```r
