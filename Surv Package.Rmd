@@ -1,0 +1,74 @@
+## Survival Package to look at the CHF subset in the Procalcitonin Database )(d01)
+
+========================================================
+#Here we read the chfnoesrd file into the current knitr document create a survival object and and plot a curve on it using the CHF patient in the d01 Procalcitonin dataset that do not have the ESRD.CKD5 code
+
+```{r read chf no esrd file in , cache=TRUE}
+chfnoesrd <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/chfnoesrd")
+data=chfnoesrd
+library(survival)
+chf.surv <- with(data, Surv(time=Survival,event=event))
+fit <- survfit(chf.surv ~ 1, data=data)
+plot(fit)
+
+
+```
+
+We generate survival curves on CHF patients based on their Procalcitonin levels ( >2 or not.)
+
+```{r 30 day mortality in CHF patients, cache=TRUE}
+library(dplyr)
+chfnoesrd2 <- mutate(chfnoesrd, ProcalGreater2 = PROCALCITONIN.d01 >=2)
+data=chfnoesrd2
+attach(data)
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
+## create a surv object
+chf.surv <- with(data, Surv(time=as.numeric(Survival),event=event))
+## fit a surv object based on d01 ProcalGreater than 2
+fit <- survfit(chf.surv ~ ProcalGreater2, data=data, conf.int=TRUE)
+## plot KM curve with intervals
+plot(fit, col=c("green","purple") ,conf.int=TRUE)
+## Test for differences in survival objects using survdiff ()
+diff <- with(data, survdiff(Surv(time=Survival,event=event)~ProcalGreater2),rho=1)
+diff
+
+
+```
+
+```{r survival regression models on 14 survival, cache=TRUE}
+library(dplyr)
+chfnoesrd2 <- mutate(chfnoesrd, ProcalGreater2 = PROCALCITONIN.d01 >=2)
+data=chfnoesrd2
+attach(data)
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
+## create a surv object
+chf.surv <- with(data, Surv(time=as.numeric(Survival),event=two_week))
+## fit a surv object based on d01 ProcalGreater than 2
+fit <- survfit(chf.surv ~ ProcalGreater2, data=data, conf.int=TRUE)
+## plot KM curve with intervals
+plot(fit, col=c("green","purple") ,conf.int=TRUE)
+## Test for differences in survival objects using survdiff ()
+## Test for differences in survival objects using survdiff ()
+diff <- with(data, survdiff(Surv(time=Survival,event=two_week)~ProcalGreater2),rho=1)
+diff
+
+## Cox PH regression using
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
+predict <- cbind(PROCALCITONIN.d01)
+
+coxph <- coxph(Surv(time=Survival,event=two_week)~predict, method="breslow")
+coxph
+
+## use the parametric models
+
+wiebull <- survreg(Surv(time=Survival,event=two_week)~predict, dist="weibull")
+wiebull
+
+exponential <- survreg(Surv(time=Survival,event=two_week)~predict, dist="exponential")
+exponential
+
+loglogistic<- survreg(Surv(time=Survival,event=two_week)~predict, dist="loglogistic")
+loglogistic
+
+```
+
