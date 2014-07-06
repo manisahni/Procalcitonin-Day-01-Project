@@ -717,6 +717,7 @@ plot(leaps)
 
 ```r
 globalnoesrd<- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5" )
+## the rifle 3 outcome is a composite outcome of patients that had an aki of Cr > 3x and/or initiation or RRT
 globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=globalnoesrd, family=binomial(link=logit))
 summary(globalrifle3)
 ```
@@ -813,6 +814,8 @@ summary(glm.chf.vent.lact)
 ## Number of Fisher Scoring iterations: 5
 ```
 
+
+```
 
 ```
 

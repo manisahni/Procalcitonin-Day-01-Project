@@ -48,11 +48,11 @@ fit <- survfit(chf.surv ~ ProcalGreater2, data=data, conf.int=TRUE)
 ## plot KM curve with intervals
 plot(fit, col=c("green","purple") ,conf.int=TRUE)
 ## Test for differences in survival objects using survdiff ()
-## Test for differences in survival objects using survdiff ()
-diff <- with(data, survdiff(Surv(time=Survival,event=two_week)~ProcalGreater2),rho=1)
+## Test for differences in 2 week survival objects using survdiff ()
+diff <- with(data, survdiff(Surv(time=Survival,event=twp_week)~ProcalGreater2),rho=1)
 diff
 
-## Cox PH regression using
+## Cox PH regression on 2 week survival using
 predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
 predict <- cbind(PROCALCITONIN.d01)
 
@@ -72,3 +72,49 @@ loglogistic
 
 ```
 
+## Looking at the influence of a Procalcitonin of > 2 on survival in the ESLD patients
+
+
+```{r elsd survival, cache=TRUE}
+
+## Looking at survival in the ESLD patients
+
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+anonmaster5<- mutate(anonmaster4, ProcalGreater2 = PROCALCITONIN.d01 >=2)
+data=anonmaster5
+attach(anonmaster5)
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
+## create a surv object
+chf.surv <- with(data, Surv(time=as.numeric(Survival),event=event))
+## fit a surv object based on d01 ProcalGreater than 2
+fit <- survfit(chf.surv ~ ProcalGreater2, data=data,subset=(ESLD=="ESLD"), conf.int=TRUE)
+## plot KM curve with intervals
+plot(fit, col=c("green","purple") ,conf.int=TRUE)
+## Test for differences in survival objects using survdiff ()
+diff <- with(data, survdiff(Surv(time=Survival,event=event)~ProcalGreater2),rho=1)
+diff
+
+## Cox PH regression on 4 week survival in ESLD patients  using
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender)
+
+coxph <- coxph(Surv(time=Survival,event=event)~predict,subset=(ESLD=="ESLD") ,method="breslow")
+coxph
+
+## Cox PH regression on 2 week survival in ESLD patients  using
+predict <- cbind(PROCALCITONIN.d01,CR.d01,VentCPT,RRTCPT,ALB.d01,WBC.d01,gender,LACTATE.d01)
+
+coxph <- coxph(Surv(time=Survival,event=two_week)~predict,subset=(ESLD=="ESLD") ,method="breslow")
+coxph
+
+## use the parametric models
+
+wiebull <- survreg(Surv(time=Survival,event=two_week)~predict, dist="weibull")
+wiebull
+
+exponential <- survreg(Surv(time=Survival,event=two_week)~predict, dist="exponential")
+exponential
+
+loglogistic<- survreg(Surv(time=Survival,event=two_week)~predict, dist="loglogistic")
+loglogistic
+
+```
