@@ -362,3 +362,5 @@ loglogistic
 ## 	Chisq= 31.11 on 8 degrees of freedom, p= 0.00013 
 ## n=389 (257 observations deleted due to missingness)
 ```
+
+

@@ -118,3 +118,5 @@ loglogistic<- survreg(Surv(time=Survival,event=two_week)~predict, dist="loglogis
 loglogistic
 
 ```
+
+

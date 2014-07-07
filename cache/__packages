@@ -2,8 +2,11 @@ base
 caret
 dplyr
 ggplot2
+glmulti
 knitr
 lattice
 leaps
 MASS
+MuMIn
+rJava
 survival

@@ -2,7 +2,7 @@
 
 ========================================================
 
-```{r loading up the packages, cache=TRUE}
+```{r loading up the packages}
 
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
 
@@ -14,7 +14,7 @@ library(dplyr)
 
 ## Exploratory Graphs
 
-```{r survival lactate, cache=TRUE, warning=FALSE}
+```{r survival lactate, warning=FALSE}
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
@@ -23,32 +23,32 @@ data <- anonMASTER
 
 ```
 
-```{r, cache=TRUE}
+```{r, cache=TRUE, eval=FALSE, echo=FALSE}
 qplot(LACTATE.d01,Survival,data=data, colour=Survival, geom=c("point","smooth"), method=lm)
 
 ```
 
-```{r, cache=TRUE}
+```{r,eval=FALSE, echo=FALSE}
 qplot(LACTATE.d01,Survival,data=data, colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
-```{r graph, cache=TRUE}
+```{r graph, cache=TRUE, eval=FALSE}
 qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r graph , cache=TRUE}
+```{r graph ,eval=FALSE, echo=FALSE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=PROCALCITONIN.d01, geom=c("point","smooth"), method=lm)
 ```
 
-```{r graph procal survival aki, cache=TRUE}
+```{r graph procal survival aki, eval=FALSE,cache=TRUE,echo=FALSE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=Transplant.y, geom=c("point","smooth"), method=lm)
 
 ```
 
-```{r graph procal survival aki , cache=TRUE}
+```{r graph procal survival aki , eval=FALSE,cache=TRUE}
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 ```
 
-```{r survival lactate by aki, cache=TRUE}
+```{r survival lactate by aki,eval=FALSE ,cache=TRUE, echo=FALSE}
 qplot(log(LACTATE.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
 
 qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smooth"), method=lm)
@@ -56,7 +56,7 @@ qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=aki, geom=c("point","smoo
 
 ```
 
-```{r graph lactate survival by esld, cache=TRUE}
+```{r graph lactate survival by esld,eval=FALSE, cache=TRUE, echo=FALSE}
 
 qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
 
@@ -65,24 +65,69 @@ qplot(log(LACTATE.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"),
 
 Below we will create a data set esldnowesrd which contains the patients that have a cirrhosis code and do not have a esrd.ckd 5 code.
 
-```{r glm rrt in esld, cache=TRUE}
+
+```{r ESLD Rifle 1}
+
 ## define the esld subset and exclude the chronic dialysis patients##
-esld <- subset(data, ESLD=="ESLD")
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+esld <- subset(anonmaster4, ESLD=="ESLD")
 
 esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
-## glm for predicing the risk of starting rrt in the encounter in this subset##
-g <- glm(rrtbin~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01, data=esldnonesrd, family=binomial(link=logit))
 
+## glm for predicing the risk of RIFLE stage1  AKI in the encounter in this subset##
+g <- glm(devaki~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01+LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+
+```
+
+## Summary of the GLM for developing renal injury of >= RIFLE stage 1 in hospitalised ESLD patients who do not have prexisting stage 5 ESRD.
+
+```{r,echo=FALSE}
 summary(g)
 
 
-qplot(log(PROCALCITONIN.d01),Survival,data=esldnonesrd,colour=aki, geom=c("point","smooth"), method=lm)
 ```
+
+
+```{r}
+
+## define the esld subset and exclude the chronic dialysis patients##
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+esld <- subset(anonmaster4, ESLD=="ESLD")
+
+esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
+## glm for predicing the risk of starting rrt in the encounter in this subset##
+rrtbin <- glm(rrtbin ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+
+rifle1 <- glm(devaki ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+
+```
+
+
+** Not enough data to look at patients in the rifle2 and rifle 3 categories in ESLD patients. Algorithms dont converge for rifle 2 and rifle 3 patients. The RRT data is shown below.**
+
+
+```{r rifle2 and rifle 3 aki not enough data }
+rifle2 <- glm(devakirifle2 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+
+rifle3  <- glm(devakirifle3 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+
+
+
+## GLM for the intiation of RRT in ESLD patients in hospitalised patients. (Not with preexisting ESRD)
+summary(rrtbin)
+
+```
+
+
+
+
 
 ## CHF and RRT models
 
 
 ```{r glm chf rrt , cache=TRUE}
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+data <- anonmaster4
 
 chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
@@ -94,9 +139,10 @@ summary(glm.chf.rrt)
 glm.chf.rrt.lact <- glm(rrtbin~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt.lact)
 
-glm.chf.rrt.lact2 <- glm(rrtbin~+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+glm.chf.rrt.lact2 <- glm(rrtbin~LACTATE.d01+CR.d01,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt.lact2)
-
+glm.chf.rrt.lact3 <- glm(rrtbin~log(PROCALCITONIN.d01)+CR.d01,data=chfnoesrd, family=binomial)
+summary(glm.chf.rrt.lact3)
 
 qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
@@ -110,7 +156,7 @@ qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
 summary(glm.chf.aki)
 
-glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
+glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+PHtn+min_sodium+CR.d01+gender+ALB.d01,data=chfnoesrd, family=binomial(link=logit))
 
 summary(glm.chf.aki.lact)
 
@@ -189,10 +235,13 @@ plot(leaps)
 *We are generating glm models on the outcome of RIFLE 3 Renal failure which includes a Creatinine rise of >3X and or RRT.*
 
 
-```{r CHF RIFLE 3 AKI GLM, cache=TRUE,warning=TRUE}
 
+```{r CHF RIFLE 3 AKI GLM, cache=FALSE,warning=TRUE}
+library(dplyr)
 anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
-anonmaster4 <- mutate(anonMASTER3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE"))
+anonmaster3 <- mutate(anonMASTER3,rifle4 = (CR.d01 >=4 & ((d2max_cr-CR.d01)>=0.5)))
+anonmaster4 <- mutate(anonmaster3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE" | rifle4 == "TRUE"))
+
 
 data <- anonmaster4
 
@@ -215,7 +264,7 @@ akioddstable
 
 *This is an all subsets regression of RIFLE 3 renal failure in CHF patients*
 
-```{r CHF AKI RIFLE 3 all subsets, cache=TRUE,warning=FALSE}
+```{r CHF AKI RIFLE 3 all subsets,warning=FALSE}
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
@@ -228,7 +277,7 @@ plot(leaps)
 
 ## Global RIFLE 3 Renal Failure
 
-```{r Global  RIFLE 3 Renal Failure,cache=TRUE,warning=FALSE}
+```{r Global  RIFLE 3 Renal Failure,warning=FALSE}
 
 globalnoesrd<- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5" )
 ## the rifle 3 outcome is a composite outcome of patients that had an aki of Cr > 3x and/or initiation or RRT
@@ -242,7 +291,7 @@ summary(globalrifle3)
 
 ## Global RIFLE 2 Renal Failure
 
-```{r Global  RIFLE 2 Renal Failure, cache=TRUE,warning=FALSE}
+```{r Global  RIFLE 2 Renal Failure,warning=FALSE}
 leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=anonmaster4, nbest=10)
 plot(leaps,scale="r2")
 
@@ -260,7 +309,66 @@ summary(glm.chf.vent.lact)
 ```
 
 
-```
+
+```{r ESLD  AKI RIFLE 1 GLM}
+
+
+glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+summary(glm.chf.aki)
+
+glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
+
+summary(glm.chf.aki.lact)
+
 
 ```
 
+## Multimodel Inference
+
+```{r multimodal inference}
+library(glmulti)
+
+globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=globalnoesrd, family=binomial(link=logit))
+
+multi.global.model <- glmulti(globalrifle3, # use the model with built as a starting point
+                      level = 1,  #  just look at main effects
+                      crit="aicc") # use AICc because it works better than AIC for small sample sizes)
+
+summary(multi.global.model)
+```
+Look at the top 10 models, ranked by AICc
+```{r}
+weightable(multi.global.model)
+```
+
+Use the top 5 models
+
+```{r}
+library(MuMIn)
+library(dplyr)
+
+globalnoesrd2 <- filter(globalnoesrd, CR.d01!=NA)
+f<- glm(rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01,data=globalnoesrd, na.action=na.exclude)
+
+```
+
+average the models together
+```{r, cache=TRUE, eval=FALSE,echo=FALSE}
+f.ave <- model.avg(f, f2, f3, f4, f5,na.action=na.exclude)
+summary(f.ave)
+```
+
+
+
+```{r}
+library(pROC)
+
+```
+
+Make your reciever-operater curve
+```{r GLOBAL AKI RIFLE3 ROC Curve}
+
+m.roc <- roc(globalnoesrd$rifle3, predict(f, backtransform = TRUE))
+plot(m.roc)
+
+```
