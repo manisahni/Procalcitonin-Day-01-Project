@@ -2,67 +2,26 @@
 
 ========================================================
 
-
 ```r
-anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
-
-library(ggplot2)
-library(caret)
+opts_chunk$set(tidy=TRUE,echo=FALSE,cache=TRUE)
 ```
 
-```
-## Loading required package: lattice
-```
 
-```r
-library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
 
 ## Exploratory Graphs
 
-
-```r
-data <- anonMASTER
-data <- tbl_df(data)
-qplot(LACTATE.d01,Survival,data=data, colour=Survival)
-```
-
 ![plot of chunk survival lactate](figure/survival lactate.png) 
 
-```r
-anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
-data <- anonMASTER
-```
-
-
-
-
-
-```r
-qplot(LACTATE.d01,Survival,data=data, colour=ESLD, geom=c("point","smooth"), method=lm)
-```
 
 
 
 
 
 
-```r
-qplot(log(PROCALCITONIN.d01),Survival,data=data,colour=ESLD, geom=c("point","smooth"), method=lm)
-```
+
+
+
+
 
 
 
@@ -73,16 +32,6 @@ Below we will create a data set esldnowesrd which contains the patients that hav
 
 
 
-```r
-## define the esld subset and exclude the chronic dialysis patients##
-anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
-esld <- subset(anonmaster4, ESLD=="ESLD")
-
-esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
-
-## glm for predicing the risk of RIFLE stage1  AKI in the encounter in this subset##
-g <- glm(devaki~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01+LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
-```
 
 ## Summary of the GLM for developing renal injury of >= RIFLE stage 1 in hospitalised ESLD patients who do not have prexisting stage 5 ESRD.
 
@@ -123,44 +72,17 @@ g <- glm(devaki~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS
 
 
 
-```r
-## define the esld subset and exclude the chronic dialysis patients##
-anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
-esld <- subset(anonmaster4, ESLD=="ESLD")
-
-esldnonesrd <- subset(esld, ESRD_CKD.5="non ESRD.CKD5")
-## glm for predicing the risk of starting rrt in the encounter in this subset##
-rrtbin <- glm(rrtbin ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
-
-rifle1 <- glm(devaki ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
-```
 
 
 ** Not enough data to look at patients in the rifle2 and rifle 3 categories in ESLD patients. Algorithms dont converge for rifle 2 and rifle 3 patients. The RRT data is shown below.**
 
 
 
-```r
-rifle2 <- glm(devakirifle2 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
-```
-
 ```
 ## Warning: glm.fit: algorithm did not converge
 ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-```
-
-```r
-rifle3  <- glm(devakirifle3 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
-```
-
-```
 ## Warning: glm.fit: algorithm did not converge
 ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-```
-
-```r
-## GLM for the intiation of RRT in ESLD patients in hospitalised patients. (Not with preexisting ESRD)
-summary(rrtbin)
 ```
 
 ```
@@ -205,18 +127,6 @@ summary(rrtbin)
 
 
 
-```r
-anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
-data <- anonmaster4
-
-chf <- subset(data, CHF=="CHF")
-chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
-
-
-glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
-summary(glm.chf.rrt)
-```
-
 ```
 ## 
 ## Call:
@@ -251,11 +161,6 @@ summary(glm.chf.rrt)
 ## AIC: 72.98
 ## 
 ## Number of Fisher Scoring iterations: 7
-```
-
-```r
-glm.chf.rrt.lact <- glm(rrtbin~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
-summary(glm.chf.rrt.lact)
 ```
 
 ```
@@ -295,11 +200,6 @@ summary(glm.chf.rrt.lact)
 ## Number of Fisher Scoring iterations: 7
 ```
 
-```r
-glm.chf.rrt.lact2 <- glm(rrtbin~LACTATE.d01+CR.d01,data=chfnoesrd, family=binomial)
-summary(glm.chf.rrt.lact2)
-```
-
 ```
 ## 
 ## Call:
@@ -326,11 +226,6 @@ summary(glm.chf.rrt.lact2)
 ## AIC: 68.03
 ## 
 ## Number of Fisher Scoring iterations: 6
-```
-
-```r
-glm.chf.rrt.lact3 <- glm(rrtbin~log(PROCALCITONIN.d01)+CR.d01,data=chfnoesrd, family=binomial)
-summary(glm.chf.rrt.lact3)
 ```
 
 ```
@@ -361,23 +256,14 @@ summary(glm.chf.rrt.lact3)
 ## Number of Fisher Scoring iterations: 6
 ```
 
-```r
-qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
-```
-
 ```
 ## Warning: Removed 1 rows containing missing values (geom_point).
 ```
 
-![plot of chunk glm chf rrt ](figure/glm chf rrt .png) 
+![plot of chunk glm chf rrt](figure/glm chf rrt.png) 
 
 ## CHF AKI RIFLE Stage I models
 
-
-```r
-glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.aki)
-```
 
 ```
 ## 
@@ -413,12 +299,6 @@ summary(glm.chf.aki)
 ## AIC: 102.6
 ## 
 ## Number of Fisher Scoring iterations: 6
-```
-
-```r
-glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+PHtn+min_sodium+CR.d01+gender+ALB.d01,data=chfnoesrd, family=binomial(link=logit))
-
-summary(glm.chf.aki.lact)
 ```
 
 ```
@@ -462,13 +342,10 @@ summary(glm.chf.aki.lact)
 *We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)*
 
 
-```r
-library(MASS)
-library(leaps)
-attach(chfnoesrd)
-leaps <- regsubsets(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
-
-plot(leaps)
+```
+## The following objects are masked _by_ .GlobalEnv:
+## 
+##     rifle3, rrtbin
 ```
 
 ![plot of chunk CHF AKI RIFLE 1 all subsets](figure/CHF AKI RIFLE 1 all subsets.png) 
@@ -478,13 +355,6 @@ plot(leaps)
 *We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)*
 
 
-```r
-aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
-WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn,
-family = binomial(link = logit), data = chfnoesrd)
-int <- exp(confint(aki))
-```
-
 ```
 ## Waiting for profiling to be done...
 ```
@@ -492,12 +362,6 @@ int <- exp(confint(aki))
 ```
 ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-```
-
-```r
-odds <- exp(coef(aki))
-akioddstable <- cbind(odds,int)
-akioddstable
 ```
 
 ```
@@ -520,15 +384,6 @@ akioddstable
 *Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.*
 
 
-
-```r
-anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
-data <- anonMASTER
-chf <- subset(data, CHF=="CHF")
-chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
-glm.chf.aki.rifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.aki.rifle2)
-```
 
 ```
 ## 
@@ -567,20 +422,8 @@ summary(glm.chf.aki.rifle2)
 ## Number of Fisher Scoring iterations: 18
 ```
 
-```r
-glmrifle2 <- glm.chf.aki.rifle2 
-
-int <- exp(confint(glm.chf.aki.rifle2))
-```
-
 ```
 ## Waiting for profiling to be done...
-```
-
-```r
-odds <- exp(coef(glm.chf.aki.rifle2))
-akioddstable <- cbind(odds,int)
-akioddstable
 ```
 
 ```
@@ -602,16 +445,10 @@ akioddstable
 
 
 
-```r
-library(MASS)
-library(leaps)
-attach(chfnoesrd)
 ```
-
-```
-## The following object is masked _by_ .GlobalEnv:
+## The following objects are masked _by_ .GlobalEnv:
 ## 
-##     aki
+##     aki, rrtbin
 ## The following objects are masked from chfnoesrd (position 3):
 ## 
 ##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
@@ -624,12 +461,6 @@ attach(chfnoesrd)
 ##     WBC.d01, X, X.1, X30d
 ```
 
-```r
-leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, nbest=10)
-
-plot(leaps)
-```
-
 ![plot of chunk CHF RIFLE 2 AKI all subsets](figure/CHF RIFLE 2 AKI all subsets.png) 
 
 ## CHF and RIFLE 3 AKI Models
@@ -638,24 +469,6 @@ plot(leaps)
 
 
 
-
-```r
-library(dplyr)
-anonMASTER3 <- mutate(anonMASTER, devakirifle3=(d2max_cr/CR.d01)>=3)
-anonmaster3 <- mutate(anonMASTER3,rifle4 = (CR.d01 >=4 & ((d2max_cr-CR.d01)>=0.5)))
-anonmaster4 <- mutate(anonmaster3, rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE" | rifle4 == "TRUE"))
-
-
-data <- anonmaster4
-
-chf <- subset(data, CHF=="CHF")
-
-chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
-## glm for rifle3
-chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
-
-summary(chfrifle3)
-```
 
 ```
 ## 
@@ -694,19 +507,8 @@ summary(chfrifle3)
 ## Number of Fisher Scoring iterations: 6
 ```
 
-```r
-##odds ratio table
-int <- exp(confint(chfrifle3))
-```
-
 ```
 ## Waiting for profiling to be done...
-```
-
-```r
-odds <- exp(coef(chfrifle3))
-akioddstable <- cbind(odds,int)
-akioddstable
 ```
 
 ```
@@ -725,56 +527,354 @@ akioddstable
 ```
 
 
+
+```
+## Initialization...
+## TASK: Exhaustive screening of candidate set.
+## Fitting...
+## 
+## After 50 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 57.2004072912646
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-61.png) 
+
+```
+## 
+## After 100 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 53.5872902402722
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-62.png) 
+
+```
+## 
+## After 150 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 46.134205980409
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-63.png) 
+
+```
+## 
+## After 200 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 42.0172347535561
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-64.png) 
+
+```
+## 
+## After 250 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 39.2342585485594
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-65.png) 
+
+```
+## 
+## After 300 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 37.3905319402869
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-66.png) 
+
+```
+## 
+## After 350 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 34.9650211645618
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-67.png) 
+
+```
+## 
+## After 400 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 33.1836442245638
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-68.png) 
+
+```
+## 
+## After 450 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 32.2523677097079
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-69.png) 
+
+```
+## 
+## After 500 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 31.6147726378283
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-610.png) 
+
+```
+## 
+## After 550 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 31.2882818319862
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-611.png) 
+
+```
+## 
+## After 600 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 30.7011539057239
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-612.png) 
+
+```
+## 
+## After 650 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 30.2378301251858
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-613.png) 
+
+```
+## 
+## After 700 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 30.1022559186875
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-614.png) 
+
+```
+## 
+## After 750 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.8237563521213
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-615.png) 
+
+```
+## 
+## After 800 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.7426604906768
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-616.png) 
+
+```
+## 
+## After 850 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.6154378921239
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-617.png) 
+
+```
+## 
+## After 900 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.5139631570923
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-618.png) 
+
+```
+## 
+## After 950 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.4638806630605
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-619.png) 
+
+```
+## 
+## After 1000 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.4171307257732
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-620.png) 
+
+```
+## 
+## After 1050 models:
+## Best model: rifle3~1+log(PROCALCITONIN.d01)+CR.d01+min_sodium
+## Crit= 24.4634293420555
+## Mean crit= 29.4122397545806
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-621.png) 
+
+```
+## Completed.
+```
+
+```
+## $name
+## [1] "glmulti.analysis"
+## 
+## $method
+## [1] "h"
+## 
+## $fitting
+## [1] "glm"
+## 
+## $crit
+## [1] "aicc"
+## 
+## $level
+## [1] 1
+## 
+## $marginality
+## [1] FALSE
+## 
+## $confsetsize
+## [1] 100
+## 
+## $bestic
+## [1] 24.46
+## 
+## $icvalues
+##   [1] 24.46 24.72 25.70 26.27 26.46 26.53 26.60 26.61 26.87 26.88 26.88
+##  [12] 26.88 27.22 27.48 27.53 27.75 27.88 27.89 27.89 28.00 28.03 28.03
+##  [23] 28.09 28.49 28.49 28.50 28.58 28.61 28.62 28.67 28.69 28.70 28.76
+##  [34] 28.98 28.99 29.04 29.05 29.05 29.06 29.06 29.06 29.07 29.33 29.36
+##  [45] 29.51 29.58 29.65 29.65 29.69 29.76 29.76 29.76 29.96 29.97 30.00
+##  [56] 30.00 30.01 30.04 30.11 30.11 30.11 30.12 30.12 30.12 30.21 30.22
+##  [67] 30.22 30.22 30.22 30.25 30.55 30.74 30.75 30.75 30.77 30.78 30.81
+##  [78] 30.88 30.89 30.89 30.91 30.96 31.12 31.13 31.13 31.13 31.14 31.25
+##  [89] 31.26 31.26 31.27 31.34 31.49 31.58 31.66 31.70 31.71 31.73 31.74
+## [100] 31.74
+## 
+## $bestmodel
+## [1] "rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01 + min_sodium"
+## 
+## $modelweights
+##   [1] 0.079358 0.069650 0.042870 0.032156 0.029315 0.028263 0.027329
+##   [8] 0.027194 0.023848 0.023749 0.023745 0.023688 0.019998 0.017569
+##  [15] 0.017119 0.015365 0.014387 0.014282 0.014281 0.013548 0.013338
+##  [22] 0.013319 0.012935 0.010603 0.010576 0.010549 0.010117 0.009958
+##  [29] 0.009911 0.009692 0.009576 0.009557 0.009250 0.008315 0.008272
+##  [36] 0.008041 0.008014 0.007998 0.007988 0.007958 0.007952 0.007937
+##  [43] 0.006960 0.006867 0.006362 0.006150 0.005942 0.005938 0.005829
+##  [50] 0.005616 0.005616 0.005613 0.005085 0.005063 0.004991 0.004979
+##  [57] 0.004962 0.004894 0.004721 0.004720 0.004713 0.004702 0.004697
+##  [64] 0.004685 0.004496 0.004470 0.004455 0.004454 0.004452 0.004406
+##  [71] 0.003782 0.003433 0.003425 0.003416 0.003384 0.003375 0.003324
+##  [78] 0.003211 0.003197 0.003191 0.003155 0.003078 0.002840 0.002837
+##  [85] 0.002833 0.002826 0.002815 0.002665 0.002656 0.002647 0.002636
+##  [92] 0.002545 0.002362 0.002263 0.002174 0.002126 0.002123 0.002098
+##  [99] 0.002087 0.002086
+## 
+## $includeobjects
+## [1] TRUE
+```
+
+This is the best model
+"rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01 + min_sodium"
+
+Lets run it
+
+```r
+library(pROC)
+bestchf <- glm(rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01 + min_sodium, data = chfnoesrd, 
+    na.action = na.exclude)
+m.roc <- roc(chfnoesrd$rifle3, predict(bestchf, backtransform = TRUE))
+plot(m.roc)
+```
+
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+
+```
+## 
+## Call:
+## roc.default(response = chfnoesrd$rifle3, predictor = predict(bestchf,     backtransform = TRUE))
+## 
+## Data: predict(bestchf, backtransform = TRUE) in 161 controls (chfnoesrd$rifle3 FALSE) < 15 cases (chfnoesrd$rifle3 TRUE).
+## Area under the curve: 0.828
+```
+
+
+
+
+
+```
+
+```
+
 *This is an all subsets regression of RIFLE 3 renal failure in CHF patients*
 
-
-```r
-library(MASS)
-```
-
-```
-## 
-## Attaching package: 'MASS'
-## 
-## The following object is masked from 'package:dplyr':
-## 
-##     select
-```
-
-```r
-library(leaps)
-attach(chfnoesrd)
-```
 
 ```
 ## The following objects are masked _by_ .GlobalEnv:
 ## 
 ##     aki, rifle3, rrtbin
-```
-
-```r
-leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit), nbest=10)
+## The following objects are masked from chfnoesrd (position 3):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, DM2, ESLD, ESRD_CKD5, event,
+##     fractioncrchange, gender, HIV, Htn, IMMUNE, LACTATE.d01,
+##     LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr, min_hb,
+##     min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rrtbin, RRTCPT,
+##     Survival, Transplant.x, Transplant.y, two_week, VentCPT,
+##     WBC.d01, X, X.1, X30d
+## The following objects are masked from chfnoesrd (position 4):
+## 
+##     aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01, CRP.d01,
+##     d2max_cr, devaki, devakirifle2, devakirifle3, DM2, ESLD,
+##     ESRD_CKD5, event, fractioncrchange, gender, HIV, Htn, IMMUNE,
+##     LACTATE.d01, LOS.y, LVAD, max_cr, maxcr, mean_cr, min_cr,
+##     min_hb, min_sodium, newage, PHtn, PLATELETS.d01, PLevel,
+##     PROCALCITONIN.d01, ratiocr, rationcr, rifle3, rifle4, rrtbin,
+##     RRTCPT, Survival, Transplant.x, Transplant.y, two_week,
+##     VentCPT, WBC.d01, X, X.1, X30d
 ```
 
 ```
 ## Error: invalid type (list) for variable '(family)'
 ```
 
-```r
-plot(leaps)
-```
-
 ![plot of chunk CHF AKI RIFLE 3 all subsets](figure/CHF AKI RIFLE 3 all subsets.png) 
 
 ## Global RIFLE 3 Renal Failure
 
-
-```r
-globalnoesrd<- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5" )
-## the rifle 3 outcome is a composite outcome of patients that had an aki of Cr > 3x and/or initiation or RRT
-globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=globalnoesrd, family=binomial(link=logit))
-summary(globalrifle3)
-```
 
 ```
 ## 
@@ -815,22 +915,11 @@ summary(globalrifle3)
 
 ## Global RIFLE 2 Renal Failure
 
-
-```r
-leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=anonmaster4, nbest=10)
-plot(leaps,scale="r2")
-```
-
 ![plot of chunk Global  RIFLE 2 Renal Failure](figure/Global  RIFLE 2 Renal Failure.png) 
 
 ## Ventilator data 
 GLM regression for the Vent CPT code, which includes lactate on d01
 
-
-```r
-glm.chf.vent.lact <- glm(VentCPT~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.vent.lact)
-```
 
 ```
 ## 
@@ -871,11 +960,6 @@ summary(glm.chf.vent.lact)
 
 
 
-```r
-glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
-summary(glm.chf.aki)
-```
-
 ```
 ## 
 ## Call:
@@ -910,12 +994,6 @@ summary(glm.chf.aki)
 ## AIC: 102.6
 ## 
 ## Number of Fisher Scoring iterations: 6
-```
-
-```r
-glm.chf.aki.lact <- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn,data=chfnoesrd, family=binomial(link=logit))
-
-summary(glm.chf.aki.lact)
 ```
 
 ```
@@ -954,24 +1032,9 @@ summary(glm.chf.aki.lact)
 ## Number of Fisher Scoring iterations: 7
 ```
 
-## Multimodel Inference
+## Multimodel Inference for RIFLE3 GLOBAL
 
 
-```r
-library(glmulti)
-```
-
-```
-## Loading required package: rJava
-```
-
-```r
-globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=globalnoesrd, family=binomial(link=logit))
-
-multi.global.model <- glmulti(globalrifle3, # use the model with built as a starting point
-                      level = 1,  #  just look at main effects
-                      crit="aicc") # use AICc because it works better than AIC for small sample sizes)
-```
 
 ```
 ## Initialization...
@@ -1188,10 +1251,6 @@ multi.global.model <- glmulti(globalrifle3, # use the model with built as a star
 ## Completed.
 ```
 
-```r
-summary(multi.global.model)
-```
-
 ```
 ## $name
 ## [1] "glmulti.analysis"
@@ -1253,10 +1312,6 @@ summary(multi.global.model)
 ## [1] TRUE
 ```
 Look at the top 10 models, ranked by AICc
-
-```r
-weightable(multi.global.model)
-```
 
 ```
 ##                                                                                           model
@@ -1466,13 +1521,6 @@ weightable(multi.global.model)
 Use the top 5 models
 
 
-```r
-library(MuMIn)
-library(dplyr)
-
-globalnoesrd2 <- filter(globalnoesrd, CR.d01!=NA)
-f<- glm(rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01,data=globalnoesrd, na.action=na.exclude)
-```
 
 average the models together
 
@@ -1480,27 +1528,8 @@ average the models together
 
 
 
-```r
-library(pROC)
-```
-
-```
-## Type 'citation("pROC")' for a citation.
-## 
-## Attaching package: 'pROC'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     cov, smooth, var
-```
 
 Make your reciever-operater curve
-
-```r
-m.roc <- roc(globalnoesrd$rifle3, predict(f, backtransform = TRUE))
-plot(m.roc)
-```
-
 ![plot of chunk GLOBAL AKI RIFLE3 ROC Curve](figure/GLOBAL AKI RIFLE3 ROC Curve.png) 
 
 ```

@@ -1,6 +1,10 @@
 ## Exploratory Survival Graphs from d01 Procalcitonin Project and the CHF,ESLD ,GLOBAL, renal failure project
 
 ========================================================
+```{r}
+opts_chunk$set(tidy=TRUE,echo=FALSE,cache=TRUE)
+
+```
 
 ```{r loading up the packages}
 
@@ -81,7 +85,7 @@ g <- glm(devaki~WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS
 
 ## Summary of the GLM for developing renal injury of >= RIFLE stage 1 in hospitalised ESLD patients who do not have prexisting stage 5 ESRD.
 
-```{r,echo=FALSE}
+```{r}
 summary(g)
 
 
@@ -125,7 +129,7 @@ summary(rrtbin)
 ## CHF and RRT models
 
 
-```{r glm chf rrt , cache=TRUE}
+```{r glm chf rrt }
 anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
 data <- anonmaster4
 
@@ -150,7 +154,7 @@ qplot( log(PROCALCITONIN.d01),CR.d01-d2max_cr,data=chfnoesrd, colour=rrtbin)
 
 ## CHF AKI RIFLE Stage I models
 
-```{r CHF AKI RIFLE 1 GLM, cache=TRUE}
+```{r CHF AKI RIFLE 1 GLM}
 
 
 glm.chf.aki <- glm(devaki~log(PROCALCITONIN.d01)+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
@@ -168,7 +172,7 @@ summary(glm.chf.aki.lact)
 
 *We will generate all subset regression with the LEAPS package for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable as an outcome (1.5X rise in Cr, over admission day Creatinine)((d2max_cr/cr.d01 > 1.5)*
 
-```{r CHF AKI RIFLE 1 all subsets, cache=TRUE}
+```{r CHF AKI RIFLE 1 all subsets}
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
@@ -182,7 +186,7 @@ plot(leaps)
 
 *We will generate an odds ratio table for looking at risk factors for developing AKI in patient with a history of CHF in the dataset. We are using the devaki variable which essentially corresponds to a rifle stage 1 definition of renal failure (d2max_cr/cr.d01 > 1.5)*
 
-```{r CHF AKI RIFLE 1 odds ratio table, cache=TRUE}
+```{r CHF AKI RIFLE 1 odds ratio table}
 aki <- glm(formula = devaki ~ log(PROCALCITONIN.d01) + LACTATE.d01 +
 WBC.d01 + DM2 + CR.d01 + gender + ALB.d01 + ESLD + PHtn,
 family = binomial(link = logit), data = chfnoesrd)
@@ -199,7 +203,7 @@ akioddstable
 *Here we subset the anonMASTER file and define the outcome of RIFLE 2 renal injury. We subset the data for CHF patients and generate and odds ratio table.*
 
 
-```{r CHF AKI RIFLE 2 GLM ODDS RATIO TABLE (d2maxcr/Cr.d01 >2), cache=TRUE, warning=FALSE}
+```{r CHF AKI RIFLE 2 GLM ODDS RATIO TABLE (d2maxcr/Cr.d01 >2), warning=FALSE}
 
 anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
 data <- anonMASTER
@@ -262,6 +266,53 @@ akioddstable
 ```
 
 
+```{r}
+
+library(glmulti)
+
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=chfnoesrd, family=binomial(link=logit), na.action=na.exclude)
+
+multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting point
+                      level = 1,  #  just look at main effects
+                      crit="aicc") # use AICc because it works better than AIC for small sample sizes)
+
+summary(multi.chf.model)
+
+```
+
+This is the best model
+"rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01 + min_sodium"
+
+Lets run it
+```{r, cache=TRUE, echo=TRUE}
+library(pROC)
+bestchf <- glm(rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01 + min_sodium, data=chfnoesrd,na.action=na.exclude)
+m.roc <- roc(chfnoesrd$rifle3, predict(bestchf, backtransform = TRUE))
+plot(m.roc)
+
+```
+
+```{r,eval=FALSE}
+library(ROCR)
+modelpred <- predict(bestchf)
+reality <- chfnoesrd$rifle3
+pred <- prediction(modelpred$x,reality)
+plot(pred)
+ed <- as.data.frame(modelpred)
+
+reality <- as.logical(reality)
+pred <- prediction(ed,reality)
+
+plot(pred)
+
+```
+
+
+
+```
+
+```
+
 *This is an all subsets regression of RIFLE 3 renal failure in CHF patients*
 
 ```{r CHF AKI RIFLE 3 all subsets,warning=FALSE}
@@ -323,12 +374,15 @@ summary(glm.chf.aki.lact)
 
 ```
 
-## Multimodel Inference
+## Multimodel Inference for RIFLE3 GLOBAL
+```{r}
+
+```
 
 ```{r multimodal inference}
 library(glmulti)
 
-globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=globalnoesrd, family=binomial(link=logit))
+globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=globalnoesrd, family=binomial(link=logit), na.action=na.exclude)
 
 multi.global.model <- glmulti(globalrifle3, # use the model with built as a starting point
                       level = 1,  #  just look at main effects
@@ -353,7 +407,7 @@ f<- glm(rifle3 ~ 1 + log(PROCALCITONIN.d01) + CR.d01,data=globalnoesrd, na.actio
 ```
 
 average the models together
-```{r, cache=TRUE, eval=FALSE,echo=FALSE}
+```{r, eval=FALSE}
 f.ave <- model.avg(f, f2, f3, f4, f5,na.action=na.exclude)
 summary(f.ave)
 ```

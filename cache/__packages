@@ -8,5 +8,6 @@ lattice
 leaps
 MASS
 MuMIn
+pROC
 rJava
 survival
