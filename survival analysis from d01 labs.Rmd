@@ -2,7 +2,7 @@
 
 ========================================================
 ```{r}
-opts_chunk$set(tidy=TRUE,echo=FALSE,cache=TRUE)
+
 
 ```
 
@@ -18,7 +18,7 @@ library(dplyr)
 
 ## Exploratory Graphs
 
-```{r survival lactate, warning=FALSE}
+```{r survival lactate, warning=FALSE, eval=FALSE}
 data <- anonMASTER
 data <- tbl_df(data)
 qplot(LACTATE.d01,Survival,data=data, colour=Survival)
@@ -111,9 +111,9 @@ rifle1 <- glm(devaki ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PL
 
 
 ```{r rifle2 and rifle 3 aki not enough data }
-rifle2 <- glm(devakirifle2 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+rifle2 <- glm(devakirifle2 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01 +AGE, data=esldnonesrd, family=binomial(link=logit))
 
-rifle3  <- glm(devakirifle3 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01, data=esldnonesrd, family=binomial(link=logit))
+rifle3  <- glm(devakirifle3 ~ WBC.d01 + log(PROCALCITONIN.d01) + CR.d01 +DM2 + Htn + PLATELETS.d01 +LACTATE.d01 +AGE, data=esldnonesrd, family=binomial(link=logit))
 
 
 
@@ -137,10 +137,10 @@ chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
 
 
-glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+glm.chf.rrt <- glm(rrtbin~log(PROCALCITONIN.d01)+ WBC.d01 +CR.d01 + ALB.d01+DM2 +min_sodium+AGE+Htn+PHtn,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt)
 
-glm.chf.rrt.lact <- glm(rrtbin~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium + min_hb+Htn,data=chfnoesrd, family=binomial)
+glm.chf.rrt.lact <- glm(rrtbin~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01 +CR.d01 + PHtn + ALB.d01+DM2 +min_sodium +AGE + min_hb+Htn,data=chfnoesrd, family=binomial)
 summary(glm.chf.rrt.lact)
 
 glm.chf.rrt.lact2 <- glm(rrtbin~LACTATE.d01+CR.d01,data=chfnoesrd, family=binomial)
@@ -209,7 +209,7 @@ anonMASTER <- mutate(anonMASTER, devakirifle2=(d2max_cr/CR.d01)>=2)
 data <- anonMASTER
 chf <- subset(data, CHF=="CHF")
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
-glm.chf.aki.rifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+glm.chf.aki.rifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ELSD+AGE+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
 summary(glm.chf.aki.rifle2)
 glmrifle2 <- glm.chf.aki.rifle2 
 
@@ -253,7 +253,7 @@ chf <- subset(data, CHF=="CHF")
 
 chfnoesrd<- subset(chf, ESRD_CKD5=="non ESRD.CKD5" )
 ## glm for rifle3
-chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit))
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+PHtn+Htn+AGE+min_sodium+min_hb,data=chfnoesrd, family=binomial(link=logit))
 
 summary(chfrifle3)
 
@@ -270,7 +270,7 @@ akioddstable
 
 library(glmulti)
 
-chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb,data=chfnoesrd, family=binomial(link=logit), na.action=na.exclude)
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb+AGE,data=chfnoesrd, family=binomial(link=logit), na.action=na.exclude)
 
 multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting point
                       level = 1,  #  just look at main effects
@@ -319,7 +319,7 @@ plot(pred)
 library(MASS)
 library(leaps)
 attach(chfnoesrd)
-leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit), nbest=10)
+leaps <- regsubsets(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+AGE+PHtn+Htn,data=chfnoesrd, family=binomial(link=logit), nbest=10)
 
 plot(leaps)
 
@@ -332,7 +332,7 @@ plot(leaps)
 
 globalnoesrd<- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5" )
 ## the rifle 3 outcome is a composite outcome of patients that had an aki of Cr > 3x and/or initiation or RRT
-globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=globalnoesrd, family=binomial(link=logit))
+globalrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+AGE+PHtn+Htn,data=globalnoesrd, family=binomial(link=logit))
 summary(globalrifle3)
 
 
@@ -343,7 +343,7 @@ summary(globalrifle3)
 ## Global RIFLE 2 Renal Failure
 
 ```{r Global  RIFLE 2 Renal Failure,warning=FALSE}
-leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+PHtn+Htn,data=anonmaster4, nbest=10)
+leaps <- regsubsets(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+CR.d01+gender+ALB.d01+PHtn+Htn+AGE,data=anonmaster4, nbest=10)
 plot(leaps,scale="r2")
 
 ```
@@ -426,3 +426,8 @@ m.roc <- roc(globalnoesrd$rifle3, predict(f, backtransform = TRUE))
 plot(m.roc)
 
 ```
+
+```{r}
+
+ inTrain <- createDataPartition(y = chfnoesrd$rifle3,
+p = .75, list = FALSE)
