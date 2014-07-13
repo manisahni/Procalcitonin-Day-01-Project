@@ -1,49 +1,36 @@
-## Risk Models for AKI, ARF and RRT in CHF models
+## Risk Models for AKI, ARF and RRT in CHF
 
 ========================================================
 
 
 
-```{r ,cache=TRUE,echo=TRUE }
-opts_chunk$set(WARNING=FALSE, echo=FALSE)
-```
 
-
-```{r}
-
-```
-
-
-```{r CHF AKI RIFLE1, cache=TRUE}
+```{r CHF AKI RIFLE1, cache=FALSE}
 
 
 chf <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/chf.csv")
-chf$X.1 <- NULL
-library(xtable)
-library(vcd)
-mytable <- xtabs(~Htn+PHtn+ESLD, data=chf)
-ftable(mytable)
+
 
 ```
 
 ## Development of RIFLE grade 1 AKI in Hospitalised CHF Patients.
 
-```{r CHF AKI RIFLE 1 GLM,, cache=FALSE, warning=FALSE}
+```{r CHF AKI RIFLE 1 GLM, cache=FALSE, warning=FALSE}
 
 
 
-chf.aki<- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+DM2+PHtn+min_sodium+CR.d01+gender+ALB.d01+AGE,data=chf, family=binomial(link=logit))
+chf.aki1<- glm(devaki~log(PROCALCITONIN.d01)+LACTATE.d01+WBC.d01+Htn+DM2+PHtn+min_sodium+CR.d01+gender+ALB.d01+AGE+BUN.Cr+HCO3,data=chf, family=binomial(link=logit))
 
-summary(chf.aki)
+summary(chf.aki1)
 
-int <- exp(confint(chf.aki))
-odds <- exp(coef(chf.aki))
-akioddstable <- cbind(odds,int)
-akioddstable
-akioddstable<- xtable(akioddstable)
+int <- exp(confint(chf.aki1))
+odds <- exp(coef(chf.aki1))
+aki1oddstable <- cbind(odds,int)
+aki1oddstable
+stargazer(aki1oddstable)
 ```
 
-## Model for Development of RIFLE 3 Hospitaled AKF in CHF Patients.
+## Model for Development of RIFLE 3  AKF in Hospitalised CHF Patients.
 
 Criterion for RIFLE 3 AKF as follows:
 
@@ -52,9 +39,9 @@ rifle4 = (CR.d01 >=4 & ((d2max_cr-CR.d01)>=0.5)))
 rifle3 = (devakirifle3=="TRUE" | rrtbin =="TRUE" | rifle4 == "TRUE"))
 
 
-```{r, cache=TRUE, warning=FALSE}
+```{r, cache=FALSE, warning=FALSE}
 ## glm for rifle3
-chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+PHtn+Htn+AGE+min_sodium+min_hb,data=chf, family=binomial(link=logit))
+chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+PHtn+Htn+AGE+min_sodium+min_hb+BUN.Cr+HCO3,data=chf, family=binomial(link=logit))
 
 summary(chfrifle3)
 
@@ -76,7 +63,7 @@ akioddstable
 
 ```{r, warning=FALSE}
 
-chfrifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+ESLD+AGE+PHtn+Htn,data=chf, family=binomial(link=logit))
+chfrifle2 <- glm(devakirifle2~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+AGE+PHtn+Htn+ESLD+BUN.Cr+HCO3,data=chf, family=binomial(link=logit))
 summary(chfrifle2)
 
 
@@ -86,4 +73,3 @@ akioddstable <- cbind(odds,int)
 akioddstable
 
 ```
-

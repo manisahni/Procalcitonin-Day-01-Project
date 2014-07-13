@@ -11,3 +11,5 @@ MuMIn
 pROC
 rJava
 survival
+vcd
+xtable

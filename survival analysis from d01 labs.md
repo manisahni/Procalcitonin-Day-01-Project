@@ -465,18 +465,6 @@ summary(glm.chf.aki.lact)
 
 ```r
 library(MASS)
-```
-
-```
-## 
-## Attaching package: 'MASS'
-## 
-## The following object is masked from 'package:dplyr':
-## 
-##     select
-```
-
-```r
 library(leaps)
 attach(chfnoesrd)
 ```
@@ -741,13 +729,7 @@ akioddstable
 
 ```r
 library(glmulti)
-```
 
-```
-## Loading required package: rJava
-```
-
-```r
 chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb+AGE,data=chfnoesrd, family=binomial(link=logit), na.action=na.exclude)
 
 multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting point
@@ -1288,7 +1270,7 @@ attach(chfnoesrd)
 ## The following objects are masked _by_ .GlobalEnv:
 ## 
 ##     aki, rifle3, rrtbin
-## The following objects are masked from chfnoesrd (position 5):
+## The following objects are masked from chfnoesrd (position 3):
 ## 
 ##     AGE, aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01,
 ##     CRP.d01, d2max_cr, devaki, devakirifle2, devakirifle3, DM2,
@@ -2029,16 +2011,6 @@ summary(f.ave)
 
 ```r
 library(pROC)
-```
-
-```
-## Type 'citation("pROC")' for a citation.
-## 
-## Attaching package: 'pROC'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     cov, smooth, var
 ```
 
 Make your reciever-operater curve
