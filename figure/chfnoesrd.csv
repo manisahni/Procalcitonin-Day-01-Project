@@ -1,0 +1,43 @@
+Renal Failure from Day Labs All Patients
+========================================================
+
+```{r}
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+View(anonmaster4)
+library(dplyr)
+## Create a file containing only patients who are not on HD
+
+global.arf <- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5")
+
+
+```
+
+```{r}
+set.seed(2)
+data<- global.arf
+library(caret)
+trainingRows <- createDataPartition(data$rifle3,p=0.75, list=FALSE)
+training <- data[trainingRows,]
+testing <- data[-trainingRows,]
+```
+library(Deducer)
+
+```{r}
+
+
+set.seed(34)
+data<- global.arf
+library(caret)
+trainingRows <- createDataPartition(data$rifle3,p=0.75, list=FALSE)
+training <- data[trainingRows,]
+testing <- data[-trainingRows,]
+
+train.fit<- glm(rifle3 ~AGE+ log(PROCALCITONIN.d01)+PHtn+CHF+ESLD+PHtn+ALB.d01+LACTATE.d01+min_hb+CR.d01+min_sodium,data=training, na.action=na.exclude, family=binomial(link=logit))
+
+library(Deducer)
+rocplot(train.fit)
+prediction <- predict(train.fit, backtransform=TRUE,newdata=testing)
+testing.roc <- roc(testing$rifle3, prediction)
+plot(testing.roc)
+
+```

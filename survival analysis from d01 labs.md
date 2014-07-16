@@ -3,7 +3,6 @@
 ========================================================
 
 
-
 ```r
 anonMASTER <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonMASTER.csv")
 
@@ -465,6 +464,18 @@ summary(glm.chf.aki.lact)
 
 ```r
 library(MASS)
+```
+
+```
+## 
+## Attaching package: 'MASS'
+## 
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+```
+
+```r
 library(leaps)
 attach(chfnoesrd)
 ```
@@ -729,7 +740,13 @@ akioddstable
 
 ```r
 library(glmulti)
+```
 
+```
+## Loading required package: rJava
+```
+
+```r
 chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+gender+ALB.d01+Htn+min_sodium+min_hb+AGE,data=chfnoesrd, family=binomial(link=logit), na.action=na.exclude)
 
 multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting point
@@ -748,7 +765,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 57.2004072912646
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-61.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-51.png) 
 
 ```
 ## 
@@ -758,7 +775,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 53.5872902402722
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-62.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-52.png) 
 
 ```
 ## 
@@ -768,7 +785,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 46.0746342885933
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-63.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-53.png) 
 
 ```
 ## 
@@ -778,7 +795,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 41.7770613455725
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-64.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-54.png) 
 
 ```
 ## 
@@ -788,7 +805,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 38.8626514453523
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-65.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-55.png) 
 
 ```
 ## 
@@ -798,7 +815,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 37.0102603486173
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-66.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-56.png) 
 
 ```
 ## 
@@ -808,7 +825,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 34.6123116115685
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-67.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-57.png) 
 
 ```
 ## 
@@ -818,7 +835,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 32.87921495582
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-68.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-58.png) 
 
 ```
 ## 
@@ -828,7 +845,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 31.8877047454736
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-69.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-59.png) 
 
 ```
 ## 
@@ -838,7 +855,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 31.1937396778474
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-610.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-510.png) 
 
 ```
 ## 
@@ -848,7 +865,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 30.8765081821073
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-611.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-511.png) 
 
 ```
 ## 
@@ -858,7 +875,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 30.4869518169527
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-612.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-512.png) 
 
 ```
 ## 
@@ -868,7 +885,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 30.2407870998398
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-613.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-513.png) 
 
 ```
 ## 
@@ -878,7 +895,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 30.1658700428566
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-614.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-514.png) 
 
 ```
 ## 
@@ -888,7 +905,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.9505534885163
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-615.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-515.png) 
 
 ```
 ## 
@@ -898,7 +915,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.8892704631747
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-616.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-516.png) 
 
 ```
 ## 
@@ -908,7 +925,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.8283238375579
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-617.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-517.png) 
 
 ```
 ## 
@@ -918,7 +935,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.7948807281551
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-618.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-518.png) 
 
 ```
 ## 
@@ -928,7 +945,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.7813204415808
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-619.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-519.png) 
 
 ```
 ## 
@@ -946,7 +963,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.7496512580229
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-620.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-520.png) 
 
 ```
 ## 
@@ -956,7 +973,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.7187210059059
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-621.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-521.png) 
 
 ```
 ## 
@@ -966,7 +983,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.3458031015874
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-622.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-522.png) 
 
 ```
 ## 
@@ -976,7 +993,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.1826113136241
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-623.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-523.png) 
 
 ```
 ## 
@@ -986,7 +1003,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 29.0786763215888
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-624.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-524.png) 
 
 ```
 ## 
@@ -996,7 +1013,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.9808464272458
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-625.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-525.png) 
 
 ```
 ## 
@@ -1006,7 +1023,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.9401781976114
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-626.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-526.png) 
 
 ```
 ## 
@@ -1016,7 +1033,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.8332381885315
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-627.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-527.png) 
 
 ```
 ## 
@@ -1026,7 +1043,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.8160199085611
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-628.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-528.png) 
 
 ```
 ## 
@@ -1036,7 +1053,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.7931708171062
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-629.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-529.png) 
 
 ```
 ## 
@@ -1054,7 +1071,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.7843327063746
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-630.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-530.png) 
 
 ```
 ## 
@@ -1064,7 +1081,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.7112985714282
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-631.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-531.png) 
 
 ```
 ## 
@@ -1082,7 +1099,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.6892791964364
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-632.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-532.png) 
 
 ```
 ## 
@@ -1100,7 +1117,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.6653536046241
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-633.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-533.png) 
 
 ```
 ## 
@@ -1118,7 +1135,7 @@ multi.chf.model <- glmulti(chfrifle3, # use the model with built as a starting p
 ## Mean crit= 28.6536517311137
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-634.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-534.png) 
 
 ```
 ## 
@@ -1225,7 +1242,7 @@ m.roc <- roc(chfnoesrd$rifle3, predict(bestchf, backtransform = TRUE))
 plot(m.roc)
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
 ```
 ## 
@@ -1270,7 +1287,7 @@ attach(chfnoesrd)
 ## The following objects are masked _by_ .GlobalEnv:
 ## 
 ##     aki, rifle3, rrtbin
-## The following objects are masked from chfnoesrd (position 3):
+## The following objects are masked from chfnoesrd (position 5):
 ## 
 ##     AGE, aki, ALB.d01, CatheterCPT, CHEMORAD, CHF, CR.d01,
 ##     CRP.d01, d2max_cr, devaki, devakirifle2, devakirifle3, DM2,
@@ -2011,6 +2028,16 @@ summary(f.ave)
 
 ```r
 library(pROC)
+```
+
+```
+## Type 'citation("pROC")' for a citation.
+## 
+## Attaching package: 'pROC'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     cov, smooth, var
 ```
 
 Make your reciever-operater curve

@@ -5,7 +5,7 @@ In this document we are selecting glm models for predicting the development of A
 
 We will generate a glm object called chfrifle3. 
 
-```{r , cache=FALSE}
+```{r , cache=TRUE, eval=TRUE}
 
 chf <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/chf.csv")
 library(glmulti)
@@ -18,7 +18,7 @@ chfrifle3 <- glm(rifle3~log(PROCALCITONIN.d01)+LACTATE.d01+ WBC.d01+DM2+CR.d01+g
 that takes a bit to run. I have run it before and basically it runs through greater than 16000 models and selects the best model based on a criterion called AICc. Change eval=TRUE to run again.
 
 
-```{r,eval=FALSE,cache=TRUE}
+```{r,cache=TRUE, echo=FALSE,eval=FALSE}
 multi.chf <- glmulti(chfrifle3, # use the model with built as a starting point
                       level = 1,  #  just look at main effects
                       crit="aicc") # use AICc because it works better than AIC for small sample sizes)
@@ -36,77 +36,209 @@ weightable(multi.chf)
 
 ```
 
-## Prepare for the ROC analysis on the top model
+## Prepare for the ROC analysis on the models
 
-Subset out the relevant variables into a smaller dataset called chf2. And create a model object called "fit", which represents the top model.
+Subset out the relevant variables into a smaller dataset called chf2. And create a model object called "fit", which represents model. I treid the top model, however the AUC was in the 80s for Rifle3 and I found that by adding other variables the AUC could be improved on significantly.
 
-
+# AUC for RIFLE 3 
 ```{r}
 
-library(dplyr)
-
-chf2 <- select(chf, CR.d01,min_sodium,PHtn,PROCALCITONIN.d01,rifle3)
 
 
-fit<- glm(rifle3 ~ log(PROCALCITONIN.d01) + CR.d01+PHtn+min_sodium,data=chf2, na.action=na.exclude, family=binomial(link=logit))
+
+
+fit<- glm(rifle3 ~AGE+ log(PROCALCITONIN.d01)+CR.d01+PHtn+min_sodium+IHD+AFIB+CHFTYPE,data=chf, na.action=na.exclude, family=binomial(link=logit))
 summary(fit)
-```
 
-Not done on current analysis:average the models together, eval=FALSE for now
+## I added the terms LACTATE.d01 ,CHFTYPE,AFIB,AGE,IHD to get the best model based on the AUC curve.
 
-```{r, eval=FALSE}
-f.ave <- model.avg(f, f2, f3, f4, f5,na.action=na.exclude)
-summary(f.ave)
-```
+## Load the pROC library 
 
-
-Load the pROC library
-```{r}
 library(pROC)
 
-```
 
-Make your reciever-operater curve
-```{r GLOBAL AKI RIFLE3 ROC Curve for the best model, cache=FALSE}
-m.roc <- roc(chf2$rifle3, predict(fit, backtransform = TRUE))
+
+## Make your reciever-operater curve for RIFLE3 Injury
+
+m.roc <- roc(chf$rifle3, predict(fit, backtransform = TRUE))
 plot(m.roc)
 
 
 ```
 
 
-reasonable good ROC of this model 0.879, but this is a derivation data set. I would like to do some cool crossvalisdation using the CARET package next.
-Before that lets see how the model of Creatinine alone performs
+# AUC for >RIFLE2 
+
 
 ```{r}
-fit<- glm(rifle3 ~ + CR.d01,data=chf2, na.action=na.exclude, family=binomial(link=logit))
-m.roc <- roc(chf2$rifle3, predict(fit, backtransform = TRUE))
+fit<- glm(devakirifle2 ~AGE+ log(PROCALCITONIN.d01)+CR.d01+PHtn+min_sodium+IHD+AFIB+CHFTYPE+LACTATE.d01,data=chf, na.action=na.exclude, family=binomial(link=logit))
+summary(fit)
+
+summary(fit)
+## NONE OF THE ESLD PATIENTS DEVELOPED AKI2 SEE BELOW REMOVED
+with(chf,table(ESLD,devakirifle2))
+## I added the terms LACTATE.d01 ,CHFTYPE,AFIB,AGE,IHD to get the best model based on the AUC curve.
+## Severe Imbalance in the devakirifle2 in COPD removed term.(although not sure it should be removed)
+with(chf,table(COPD,devakirifle2))
+
+
+m.roc <- roc(chf$devakirifle2, predict(fit, backtransform = TRUE))
+plot(m.roc)
+
+
+```
+
+# AKI for >RIFLE1
+
+
+```{r}
+fit<- glm(devaki~ AGE+log(PROCALCITONIN.d01)+ CR.d01+PHtn+min_sodium+CHFTYPE+AFIB+ESLD+IHD+COPD+LACTATE.d01,data=chf, na.action=na.exclude, family=binomial(link=logit))
+summary(fit)
+
+m.roc <- roc(chf$devaki, predict(fit, backtransform = TRUE))
 plot(m.roc)
 
 ```
-This model only has a 0.75 AUC, so we observe that our best model does really improve the AUC. But this is not crossvalidated data. Lets see if we can work on cross-validation with caret.
 
-Lets start by partioning our data.
-```{r, }
 
+## ROC curves for RIFLE 3 outcome.
+
+RIFLE 3 AKI with day Creatinine in the model
+```{r RIFLE 3 AKF with Creatinine}
+
+
+
+set.seed(2014)
+data<- chf
+library(caret)
+trainingRows <- createDataPartition(data$rifle3,p=0.8, list=FALSE)
+training <- data[trainingRows,]
+testing <- data[-trainingRows,]
+train.fit<- glm(rifle3 ~ AGE + log(PROCALCITONIN.d01)+CR.d01+PHtn+min_sodium,data=training, na.action=na.exclude, family=binomial(link=logit))
+
+
+library(Deducer)
+rocplot(train.fit)
+prediction <- predict(train.fit, backtransform=TRUE,newdata=testing)
+testing.roc <- roc(testing$rifle3, prediction)
+plot(testing.roc)
+
+```
+
+
+## No creatinine model; Model for prediciting RIFLE 3 ARF without usingday01 Creatinine
+
+##Lets see if we can take day one Creatinine out of the equation and predict RIFLE 3 AKF
+
+```{r rifle 3 modelled without day01 creatinine }
+set.seed(606)
 library(caret)
 trainingRows <- createDataPartition(chf$rifle3,p=0.75, list=FALSE)
+
 training <- chf[trainingRows,]
 testing <- chf[-trainingRows,]
-dim
+
+training.fit2 <- glm(rifle3 ~AGE+ log(PROCALCITONIN.d01)+PHtn+min_sodium+IHD+AFIB+CHFTYPE+COPD+Transplant.y+ALB.d01+min_hb+HCO3+ESLD:PLATELETS.d01,data=training, na.action=na.exclude, family=binomial(link=logit))
+rocplot(training.fit2)
+
+testing.fit2 <- glm(rifle3 ~AGE+ log(PROCALCITONIN.d01)+PHtn+min_sodium+IHD+AFIB+CHFTYPE+COPD+Transplant.y+ALB.d01+min_hb+HCO3+ESLD:PLATELETS.d01+ESLD:PLATELETS.d01,data=testing, na.action=na.exclude, family=binomial(link=logit))
+
+rocplot(testing.fit2)
+```
+
+#RIFLE 2 renal injury model AUCs
+___________________________________________
+Lets start by partioning our data.
+```{r data partioning training and testing datasets with ROC curves,eval=FALSE,echo=FALSE }
+
+library(dplyr)
+chf3 <- mutate(chf,akiR2= (devakirifle2=="TRUE" | rifle3=="TRUE"))
+set.seed(44)
+library(caret)
+trainingRows <- createDataPartition(chf3$akiR2,p=0.7, list=FALSE)
+training <- chf3[trainingRows,]
+testing <- chf3[-trainingRows,]
+
+fit<- glm(akiR2 ~AGE+ log(PROCALCITONIN.d01)+CR.d01+min_sodium+PHtn,data=training, na.action=na.exclude, family=binomial(link=logit))
+summary(fit)
+
+## I added the terms LACTATE.d01 ,CHFTYPE,AFIB,AGE,IHD to get the best model based on the AUC curve.
+
+## Load the pROC library 
+
+library(pROC)
+
+
+
+## Make your reciever-operater curve for RIFLE3 Injury
+
+training.roc <- roc(training$akiR2, predict(fit, backtransform = TRUE))
+plot(training.roc)
+
+test.roc <- roc(testing$akiR2,predict(fit,newdata=testing, backtransform=TRUE, type="response"))
+plot(test.roc)
+
+
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Using the train function, generate models
 
-```{r}
+```{r,eval=FALSE,echo=FALSE}
 set.seed(1)
-model.fit <- train(rifle3 ~ . , preProcess=c("knnImpute","center","scale"),data=training)
+```
 
-##
+ But we should be able to preprocess with dummy vars
+
+```{r, eval=FALSE,echo=FALSE}
+dummies <- dummyVars(rifle3 ~ ., data = training)
+dumb.training <-predict(dummies, newdata=training)
+rifle3 <- training$rifle3
+dumb.training2 <- cbind(rifle3,dumb.training)
+
+View(dumb.training)
+
+fit <- train(as.factor(rifle3) ~ ., data=dumb.training2, method="glm", preProcess=c("knnImpute", "center","scale"))
 
 ```
 
-*THIS IS WERE THINGS START GETTING MESSY: *
-Error in `contrasts<-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : 
-  contrasts can be applied only to factors with 2 or more levels
-  
+
+summary(fit)
+## I added the terms LACTATE.d01 ,CHFTYPE,AFIB,AGE,IHD to get the best model based on the AUC curve.
+## Load the pROC library
+library(pROC)
+## Make your reciever-operater curve for RIFLE3 Injury
+training.roc <- roc(training$rifle3, predict(fit, backtransform = TRUE))
+plot(training.roc)
+test.roc <- roc(testing$rifle3,predict(fit,newdata=testing, backtransform=TRUE))
+plot(test.roc)
+
+
+
+
+```
+```{r create the dummyVar test object and apply it to the test set,echo=FALSE,eval=FALSE}
+rifle3 <- testing$rifle3
+dummies.test <- dummyVars(rifle3~ ., data = testing)
+dumb.testing <-predict(dummies.test, newdata=testing)
+dumb.testing2 <- cbind(rifle3,dumb.testing)
+
+prediction <- predict(fit,newdata=dumb.testing2)
+
+```
+
+

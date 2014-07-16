@@ -1,10 +1,6 @@
 ## Exploratory Survival Graphs from d01 Procalcitonin Project and the CHF,ESLD ,GLOBAL, renal failure project
 
 ========================================================
-```{r}
-
-
-```
 
 ```{r loading up the packages}
 

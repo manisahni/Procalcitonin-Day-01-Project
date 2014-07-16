@@ -1,0 +1,55 @@
+CHF AKI AUC with Partioning
+========================================================
+## Model for Rifle 3 AKI in CHF.
+
+```{r}
+chf <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/chf.csv")
+set.seed(2014)
+data<- chf
+library(caret)
+trainingRows <- createDataPartition(data$rifle3,p=0.8, list=FALSE)
+training <- data[trainingRows,]
+testing <- data[-trainingRows,]
+train.fit<- glm(rifle3 ~  log(PROCALCITONIN.d01)+CR.d01+PHtn+min_sodium+CHFTYPE+ESLD,data=training, na.action=na.exclude, family=binomial(link=logit))
+
+
+library(Deducer)
+rocplot(train.fit)
+prediction <- predict(train.fit, backtransform=TRUE,newdata=testing)
+
+library(pROC)
+testing.roc <- roc(testing$rifle3, prediction)
+plot(testing.roc)
+ci(testing.roc)
+
+```
+These are the AUC values I got from doing a rerun of sampling and testing from seeds of 2014 to 2025
+mean(0.96,0.72,0.68,0.98,0.85,0.68,0.88,0.89,0.838,0.97,0.967,1,0.7262,0.750.79,0.94,0.94,0.88,0.87,0.840.767), 
+
+
+this gives us a mean AUC of 85,3, CI 0.80 to 0.89 range.
+
+## CHF RIFLE 2 AKI
+```{r}
+chf <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/chf.csv")
+set.seed(48)
+
+data<- chf3
+library(caret)
+trainingRows <- createDataPartition(data$akiR2,p=0.8, list=FALSE)
+training <- data[trainingRows,]
+testing <- data[-trainingRows,]
+train.fit<- glm(akiR2 ~ log(PROCALCITONIN.d01)+ PHtn+min_sodium+CR.d01+AGE+ESLD+IHD+AFIB,data=training, na.action=na.exclude, family=binomial(link=logit))
+
+
+library(Deducer)
+rocplot(train.fit)
+prediction <- predict(train.fit, backtransform=TRUE,newdata=testing)
+
+library(pROC)
+testing.roc <- roc(testing$akiR2, prediction)
+plot(testing.roc)
+ci(testing.roc)
+
+```
+auc <- 0.6
