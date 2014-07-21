@@ -104,18 +104,7 @@ ci(testing.roc)
 These are the AUC values I got from doing a rerun of sampling and testing from seeds of 2014 to 2025
 mean(0.96,0.72,0.68,0.98,0.85,0.68,0.88,0.89,0.838,0.97,0.967,1,0.7262,0.750.79,0.94,0.94,0.88,0.87,0.840.767), 
 
-c(0.96,0.72,0.68,0.98,0.85,0.68,0.88,0.89,0.838,0.97,0.967,1,0.7262,0.750,0.79,0.94,0.94,0.88,0.87,0.84,0.767)
-> t.test(AUC)
 
-  One Sample t-test
-
-data:  AUC
-t = 38.1469, df = 20, p-value < 2.2e-16
-alternative hypothesis: true mean is not equal to 0
-95 percent confidence interval:
- 0.8065900 0.8999053
-sample estimates:
-mean of x 
 this gives us a mean AUC of 85,3, CI 0.80 to 0.89 range.
 
 ## CHF RIFLE 2 AKI

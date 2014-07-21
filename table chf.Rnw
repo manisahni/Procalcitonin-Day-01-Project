@@ -1,0 +1,51 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+% Table created by stargazer v.5.1 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Wed, Jul 16, 2014 - 08:58:02
+\begin{table}[!htbp] \centering 
+  \caption{} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
+\hline \\[-1.8ex] 
+X.1 & 229 & 338.747 & 181.531 & 7 & 645 \\ 
+X & 229 & 338.747 & 181.531 & 7 & 645 \\ 
+PROCALCITONIN.d01 & 229 & 5.774 & 17.695 & 0.050 & 159.840 \\ 
+CR.d01 & 228 & 1.926 & 1.720 & 0.410 & 12.810 \\ 
+d2max\_cr & 229 & 1.990 & 1.810 & 0.400 & 12.480 \\ 
+min\_cr & 229 & 1.315 & 1.109 & 0.340 & 7.180 \\ 
+mean\_cr & 229 & 1.711 & 1.448 & 0.400 & 10.327 \\ 
+max\_cr & 229 & 2.225 & 1.941 & 0.420 & 12.810 \\ 
+WBC.d01 & 226 & 14.435 & 8.416 & 1.400 & 58.900 \\ 
+LACTATE.d01 & 138 & 2.720 & 2.416 & 0.500 & 13.400 \\ 
+CRP.d01 & 68 & 132.732 & 123.722 & 9.000 & 532.500 \\ 
+ALB.d01 & 191 & 3.444 & 0.614 & 1.400 & 5.200 \\ 
+PLATELETS.d01 & 228 & 240.285 & 125.621 & 23 & 900 \\ 
+LOS.y & 229 & 9.738 & 9.036 & 2 & 60 \\ 
+event & 229 & 0.240 & 0.428 & 0 & 1 \\ 
+two\_week & 229 & 0.148 & 0.356 & 0 & 1 \\ 
+Survival & 229 & 26.830 & 8.355 & 3 & 31 \\ 
+min\_sodium & 195 & 136.169 & 5.183 & 122 & 155 \\ 
+min\_hb & 195 & 10.839 & 2.392 & 4.000 & 17.700 \\ 
+rrtbin & 229 & 0.105 & 0.307 & 0 & 1 \\ 
+aki & 228 & 0.083 & 0.277 & 0 & 1 \\ 
+devaki & 228 & 0.083 & 0.277 & 0 & 1 \\ 
+fractioncrchange & 229 & 0.791 & 1.135 & 0.057 & 11.404 \\ 
+ratiocr & 228 & 1.083 & 0.578 & 0.342 & 4.358 \\ 
+maxcr & 228 & 1.083 & 0.578 & 0.342 & 4.358 \\ 
+rationcr & 228 & 1.083 & 0.578 & 0.342 & 4.358 \\ 
+newage & 229 & 5,034.636 & 2,059.701 & 278.087 & 10,235.810 \\ 
+devakirifle2 & 228 & 0.044 & 0.205 & 0 & 1 \\ 
+devakirifle3 & 228 & 0.022 & 0.147 & 0 & 1 \\ 
+rifle3 & 228 & 0.118 & 0.324 & 0 & 1 \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+
+\end{document}

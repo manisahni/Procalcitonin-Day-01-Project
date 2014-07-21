@@ -1,0 +1,84 @@
+Transplant patients do not mount a brisk leukocytotic reponse.
+
+========================================================
+
+
+We subsettted patients that had a WBC count of atleast 3
+
+```{r,echo=FALSE,cache=FALSE}
+anonmaster4 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster4.csv")
+library(dplyr)
+library(ggplot2)
+library(plyr)
+data <- tbl_df(anonmaster4)
+
+
+
+```
+
+```{r,echo=FALSE,cache=FALSE}
+
+lact <- ddply(data,.(PLevel,Transplant.y),summarise,mean=round(mean(WBC.d01, na.rm=TRUE)), sd=(sd(WBC.d01, na.rm=TRUE)))
+plot1 <- ggplot(lact,aes(x=PLevel,y=mean, fill=Transplant.y)) + geom_bar(stat="identity",position="dodge", colour="black") + scale_fill_brewer(palette="Pastel1")+scale_x_discrete(limits=c("Critical >= 10", "High Risk 2-9.99","Moderate Risk 0.5-1.99","Low Risk 0.05-0.49","Normal"), labels=c("Critical", "High", "Moderate"," ","Normal")) +xlab("Procalcitonin Level") + ylab("Mean WBC count")+geom_abline(intercept=12, slope=0)
+
+
+plot1
+```
+
+
+The horizontal black line represents a WBC count of 12,000
+```{r,echo=FALSE,eval=FALSE}
+plot + geom_line(aes(x=PLevel,y=mean,group=Transplant.y, colour=Transplant.y)) + geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), position=position_dodge(0.9),width=0.1)  +geom_abline(intercept=12, slope=0)
+```
+
+The same analysis by medians
+
+```{r median , echo=FALSE}
+library(plyr); library(ggplot2)
+ lact <- ddply(data,.(PLevel,Transplant.y),summarise,median=round(median(WBC.d01, na.rm=TRUE)))
+plot2 <- ggplot(lact,aes(x=PLevel,y=median, fill=Transplant.y)) + geom_bar(stat="identity",position="dodge", colour="black") + scale_fill_brewer(palette="Pastel1")+scale_x_discrete(limits=c("Critical >= 10", "High Risk 2-9.99","Moderate Risk 0.5-1.99","Low Risk 0.05-0.49","Normal"), labels=c("Critical", "High", "Moderate"," ","Normal")) +xlab("Procalcitonin Level") + ylab("Median WBC count")+ geom_abline(intercept=12, slope=0)
+
+plot2
+
+
+
+```
+
+Histogram of WBC distributions in patients with a Procal of >2 and >5
+
+```{r, echo=FALSE}
+
+
+data1 <- subset(data,PROCALCITONIN.d01>=1)
+hist1 <- ggplot(data1,aes(x=WBC.d01,fill=Transplant.y)) + geom_density(alpha=.3) +geom_vline(xintercept=12)
+data <- anonmaster4
+data5 <- subset(data,PROCALCITONIN.d01>=5)
+hist5 <- ggplot(data5,aes(x=WBC.d01,fill=Transplant.y)) + geom_density(alpha=.3) +geom_vline(xintercept=12)
+data10 <- subset(data,PROCALCITONIN.d01>=10)
+hist10<- ggplot(data5,aes(x=WBC.d01,fill=Transplant.y)) + geom_density(alpha=.3) +geom_vline(xintercept=12)
+par(mfrow=c(1,2))
+hist1 <- hist1 + xlim(3,40) + ggtitle("Distribution of WBC counts in patients with Procalcitonin levels of >= 2")
+hist5 <- hist5 + xlim(3,40) + ggtitle("Distribution of WBC counts in patients with Procalcitonin levels of >= 5")
+hist10 <- hist10 + xlim(3,40) + ggtitle("Distribution of WBC counts in patients with Procalcitonin levels of >= 10")
+hist1 
+hist5
+hist10
+
+```
+
+
+```{r, warning=FALSE}
+library(gridExtra)
+grid.arrange(hist1,hist5,plot1, plot2,ncol=2)
+```
+
+
+```{r}
+data4 <- subset(data,WBC.d01>=4)
+t <- with(data4, table(hiwbc=WBC.d01>12, hiproc=PROCALCITONIN.d01>=2, Transplant.y))
+library(vcd)
+structable(t)
+
+chisq.test(t)
+
+```

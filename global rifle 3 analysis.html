@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>2 week Survival Prediction Project: (Kill the APACHE)</title>
+<title>RIFLE 3 Logistic in Global </title>
 
 <style type="text/css">
 body, td {
@@ -178,215 +178,74 @@ hljs.initHighlightingOnLoad();
 </head>
 
 <body>
-<h1>2 week Survival Prediction Project: (Kill the APACHE)</h1>
+<h1>RIFLE 3 Logistic in Global </h1>
 
-<p>Our Aim is to develop a tool that competes with the APACHE score prediction system and allows clinicians to model scenarios that will predict probability of 2 week survival of patients. We are using admission day labs, clinical data about patient health (parts of their medical history) and some CPT codes that allow clinicians to enter or model clinical variable (such as if they are put on a ventilator, if they are started on RRT or if they require a central line). Currently I am trialing the first iteration of this model on CHF patients. But hopefully will expand to a more generalised model.</p>
+<p>Procalcitonin and CHF interaction:</p>
 
-<pre><code class="r">chf &lt;- read.csv(&quot;~/Dropbox/Procalcitonin CHF Project/chf.csv&quot;)
-glm &lt;- glm(two_week~LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+devaki+rrtbin+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+VentCPT+CatheterCPT, data=chf, family=binomial(link=logit), na.action=na.exclude)
+<pre><code class="r">anonmaster5 &lt;- read.csv(&quot;~/Desktop/Procalcitonin Day 01 Priject/anonmaster5&quot;)
+library(rms)
 </code></pre>
 
-<pre><code>## Error: object &#39;COPD&#39; not found
-</code></pre>
-
-<pre><code class="r">summary(glm)
-</code></pre>
-
-<pre><code>## Error: object of type &#39;closure&#39; is not subsettable
-</code></pre>
-
-<pre><code class="r">library(pROC)
-</code></pre>
-
-<pre><code>## Type &#39;citation(&quot;pROC&quot;)&#39; for a citation.
+<pre><code>## Loading required package: Hmisc
+## Loading required package: grid
+## Loading required package: lattice
+## Loading required package: survival
+## Loading required package: splines
+## Loading required package: Formula
 ## 
-## Attaching package: &#39;pROC&#39;
+## Attaching package: &#39;Hmisc&#39;
 ## 
-## The following objects are masked from &#39;package:stats&#39;:
+## The following objects are masked from &#39;package:base&#39;:
 ## 
-##     cov, smooth, var
+##     format.pval, round.POSIXt, trunc.POSIXt, units
+## 
+## Loading required package: SparseM
+## 
+## Attaching package: &#39;SparseM&#39;
+## 
+## The following object is masked from &#39;package:base&#39;:
+## 
+##     backsolve
 </code></pre>
 
-<pre><code class="r">m.roc &lt;- roc(chf$two_week, predict(glm, backtransform = TRUE))
+<pre><code class="r"># anonmaster5 &lt;- subset(anonmaster4, ESRD_CKD5==&quot;non ESRD.CKD5&quot;)
+fit &lt;- lrm(data=anonmaster5, rifle3 ~ CR.d01 + PROCALCITONIN.d01 +CHF+PROCALCITONIN.d01*CHF, x=TRUE,y=TRUE)
+fit
 </code></pre>
 
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
+<pre><code>## 
+## Logistic Regression Model
+## 
+## lrm(formula = rifle3 ~ CR.d01 + PROCALCITONIN.d01 + CHF + PROCALCITONIN.d01 * 
+##     CHF, data = anonmaster5, x = TRUE, y = TRUE)
+## 
+## Frequencies of Missing Values Due to Each Variable
+##            rifle3            CR.d01 PROCALCITONIN.d01               CHF 
+##                 3                 3                 0                 0 
+## 
+## 
+##                       Model Likelihood     Discrimination    Rank Discrim.    
+##                          Ratio Test            Indexes          Indexes       
+## Obs           600    LR chi2      50.04    R2       0.210    C       0.750    
+##  FALSE        561    d.f.             4    g        0.869    Dxy     0.499    
+##  TRUE          39    Pr(&gt; chi2) &lt;0.0001    gr       2.384    gamma   0.508    
+## max |deriv| 8e-08                          gp       0.062    tau-a   0.061    
+##                                            Brier    0.051                     
+## 
+##                                 Coef    S.E.   Wald Z Pr(&gt;|Z|)
+## Intercept                       -3.8590 0.3925 -9.83  &lt;0.0001 
+## CR.d01                           0.7044 0.1326  5.31  &lt;0.0001 
+## PROCALCITONIN.d01                0.0220 0.0093  2.36  0.0182  
+## CHF=non CHF                     -0.3585 0.3968 -0.90  0.3663  
+## PROCALCITONIN.d01 * CHF=non CHF -0.0308 0.0158 -1.95  0.0515
 </code></pre>
 
-<pre><code class="r">plot(m.roc)
+<pre><code class="r">with(anonmaster5,table(rifle3))
 </code></pre>
 
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<h2>Selecting the best model using the glmmulti package</h2>
-
-<p>Lets used the glm multi package to select the best model for the two week outome</p>
-
-<pre><code class="r">library(glmulti)
-
-
-
-chf.surv &lt;- glmulti(glm, # use the model with built as a starting point
-                      level = 1,  #  just look at main effects
-                      crit=&quot;aicc&quot;, method=&quot;g&quot;) # use AICc because it works better than AIC for small sample sizes)
-
-summary(chf.surv)
-</code></pre>
-
-<p>After 820 generations:
-Best model: two_week~1+ESLD+VentCPT+PHtn+IHD+Htn+min_hb+AGE+ALB.d01
-Crit= 93.7236292379163
-Mean crit= 100.789138411269
-Improvements in best and average IC have bebingo en below the specified goals.
-Algorithm is declared to have converged.
-Completed.</p>
-
-<p>Lets try out our  best model</p>
-
-<pre><code class="r">bestmodels &lt;- glm(two_week~1+ESLD+VentCPT+PHtn+IHD+Htn+min_hb+AGE+ALB.d01 ,data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;IHD&#39; not found
-</code></pre>
-
-<pre><code class="r">library(pROC)
-m.roc &lt;- roc(chf$two_week, predict(bestmodels, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: object &#39;bestmodels&#39; not found
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<p>Not really as good as the whole model, I guess the genetic glm multi search didnt improve the model very much. We will chuck it. </p>
-
-<p>We will take a more reasoned clinical based approach, divide the predictors into 3 categories</p>
-
-<p>Class 1) Admission Day Labs
-Class 2) Patient History
-Class 3) Procedures/Events in the Hospital</p>
-
-<pre><code class="r">admitlabs &lt;- c(&quot;HCO3&quot;,&quot;PLATELETS.d01&quot;,&quot;LACTATE.d01&quot;,&quot;CR.d01&quot;,&quot;PROCALCITONIN.d01&quot;,&quot;ALB.d01&quot;,&quot;min_sodium&quot;,&quot;min_hb&quot;)
-history &lt;-c(&quot;gender&quot;,&quot;COPD&quot;,&quot;AFIB&quot;,&quot;ESLD&quot;,&quot;PHtn&quot;,&quot;AGE&quot;,&quot;Transplant.y&quot;,&quot;CHFTYPE&quot;,&quot;IHD&quot;)
-interactions &lt;- c(&quot;PLATELETS.d01:ESLD&quot;)
-month.surv &lt;- chf$event
-fourteen &lt;- chf$two_week
-</code></pre>
-
-<p>Categories 1 and 2 are immediately available to clinicians on the time of admission; events , procedures status may or may not be available to the clinician. Eg a patient may get admitted to the hospital ICU and then get intubated and get a central line in the on HOD subsequent 2 day. In this case the clinician will not have the VentStatus and the Central line status available at the time of admission but will have it in 2 days. They can thus use the model for restimation of th 2 week mortality category at the time.</p>
-
-<p>Lets try to fit a model based on Predictor Class 1 and 2 only, since this information is immediately available to clinicians at the time of admission.</p>
-
-<pre><code class="r"> glm &lt;- glm(event~ HCO3+ PLATELETS.d01+LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+PLATELETS.d01:ESLD, data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;HCO3&#39; not found
-</code></pre>
-
-<pre><code class="r">library(pROC)
-m.roc &lt;- roc(chf$event, predict(glm, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<p>The following is the 2 week survival model based on clinical history and admit labs alone. The AUC on this model is reasonably good at 0.89, hopefully we can add on more terms to refine this model.</p>
-
-<pre><code class="r">glm &lt;- glm(two_week~ HCO3+ PLATELETS.d01+LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+PLATELETS.d01:ESLD+CHFTYPE, data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;HCO3&#39; not found
-</code></pre>
-
-<pre><code class="r">library(pROC)
-m.roc &lt;- roc(chf$two_week, predict(glm, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<p>Now we will add in event information that the physician may not have nessecarily have on admission. Lets suppose that we give wether the patient was Vent during this admission (represented by the VentCPT code). The AUC jumps to 0.9243</p>
-
-<pre><code class="r">glm &lt;- glm(two_week~ HCO3+ PLATELETS.d01+LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+PLATELETS.d01:ESLD+CHFTYPE+VentCPT, data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;HCO3&#39; not found
-</code></pre>
-
-<pre><code class="r">m.roc &lt;- roc(chf$two_week, predict(glm, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<p>So far we have not incorporated any information on labs and any information to the model about what could have potentially changed beyond day 0-1 except for the VentCPT.
-Suppose we know that the patient was started on RRT at some point during the admission.</p>
-
-<pre><code class="r">glm &lt;- glm(two_week~ HCO3+ PLATELETS.d01+LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+PLATELETS.d01:ESLD+CHFTYPE+rifle3+VentCPT, data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;HCO3&#39; not found
-</code></pre>
-
-<pre><code class="r">m.roc &lt;- roc(chf$two_week, predict(glm, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
-</code></pre>
-
-<p>Here is the data for the 30 day survival AUC in this model.</p>
-
-<pre><code class="r">glm &lt;- glm(event~ HCO3+ PLATELETS.d01+LACTATE.d01+AGE+PROCALCITONIN.d01+min_sodium+min_hb+gender+COPD+CR.d01+AFIB+ALB.d01+ESLD+PHtn+Transplant.y+IHD+PLATELETS.d01:ESLD+CHFTYPE+rifle3+VentCPT, data=chf, family=binomial(link=logit), na.action=na.exclude)
-</code></pre>
-
-<pre><code>## Error: object &#39;HCO3&#39; not found
-</code></pre>
-
-<pre><code class="r">m.roc &lt;- roc(chf$event, predict(glm, backtransform = TRUE))
-</code></pre>
-
-<pre><code>## Error: no applicable method for &#39;predict&#39; applied to an object of class
-## &quot;function&quot;
-</code></pre>
-
-<pre><code class="r">plot(m.roc)
-</code></pre>
-
-<pre><code>## Error: object &#39;m.roc&#39; not found
+<pre><code>## rifle3
+## FALSE  TRUE 
+##   561    39
 </code></pre>
 
 </body>

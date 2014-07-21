@@ -1,0 +1,14 @@
+RIFLE 3 Logistic in Global 
+========================================================
+
+Procalcitonin and CHF interaction:
+
+
+```{r}
+anonmaster5 <- read.csv("~/Desktop/Procalcitonin Day 01 Priject/anonmaster5")
+library(rms)
+# anonmaster5 <- subset(anonmaster4, ESRD_CKD5=="non ESRD.CKD5")
+fit <- lrm(data=anonmaster5, rifle3 ~ CR.d01 + PROCALCITONIN.d01 +CHF+PROCALCITONIN.d01*CHF, x=TRUE,y=TRUE)
+fit
+with(anonmaster5,table(rifle3))
+
